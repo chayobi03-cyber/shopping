@@ -88,3 +88,14 @@ Project-local custom skills are in .agents/skills. The repository contains the s
 ## Scope
 
 이 저장소는 제품 정보 조사·검증 시스템의 표준과 구현 설계를 관리한다. 특정 판매처의 재고나 가격을 영구적으로 보증하지 않으며, 수집 방식은 각 출처의 권한·약관·법적 조건을 확인한 범위에서만 사용한다.
+
+
+## Mobile-only development
+
+For Android-only development, use GitHub Codespaces as the cloud Linux environment and Chrome as the browser-based VS Code client.
+
+- [Mobile-only setup guide](docs/agentic/MOBILE_ONLY_SETUP.md)
+- [Codespaces devcontainer](.devcontainer/devcontainer.json)
+- [Post-create tool bootstrap](.devcontainer/post-create.sh)
+
+Codespaces creation and Codex authentication require the user's GitHub/OpenAI sign-in. The repository configuration does not imply that a Codespace has already been created or that tools are authenticated.
