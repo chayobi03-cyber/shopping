@@ -47,9 +47,9 @@ Claude Code:
 
 The --force option acknowledges that this is a non-empty repository and may replace files at conflicting Spec Kit-managed paths. The branch is the reviewable baseline. Inspect the complete diff after initialization; do not accept unexplained changes to existing project documents.
 
-Codex installs Spec Kit skills under .agents/skills/speckit-<command>/SKILL.md and uses $speckit-<command> invocation. Claude Code installs them under .claude/skills/speckit-<command>/SKILL.md and uses /speckit-<command>. Follow the syntax generated for the selected integration.
+Codex installs Spec Kit skills under .agents/skills/speckit-<command>/SKILL.md and uses $speckit-<command> invocation. Claude Code installs them under .claude/skills/speckit-<command>/SKILL.md and uses /speckit-<command>. Project-local Shopping skills are mirrored in both directories for these two harnesses. Keep the mirror copies identical. Follow the syntax generated for the selected integration.
 
-Do not manually edit generated speckit-* skill files. Keep project policy in AGENTS.md and docs/agentic/SHOPPING_CONSTITUTION.md.
+Do not manually edit generated speckit-* skill files. Keep project policy in AGENTS.md and docs/agentic/SHOPPING_CONSTITUTION.md. The shopping-* skill files are project-owned and may be revised through normal review.
 
 ## 5. Create the project Constitution
 
