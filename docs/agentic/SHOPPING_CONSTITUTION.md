@@ -1,10 +1,10 @@
 # Shopping Project Constitution
 
-**Status:** Proposed baseline for Spec Kit adoption  
+**Status:** Proposed for adoption; requires human review before merge  
 **Version:** 1.0.0  
-**Effective date:** Upon approval and installation into .specify/memory/constitution.md
+**Effective date:** Upon approval and merge of the Rulebook adoption change
 
-This document is the source text for the project's Spec Kit Constitution. During bootstrap, initialize Spec Kit first, then create or update the generated Constitution from these principles and review the generated diff.
+This Constitution is the repository's stable set of project invariants. It is a normal Markdown policy document and does not require Spec Kit installation or generation. Any future tool-specific Constitution copy must remain identical in meaning and must be treated as a derived adapter.
 
 ## Principle 1 — Identity Before Enrichment
 
@@ -36,7 +36,7 @@ Product matching, identifier comparison, unit normalization, validation, quality
 
 ## Principle 8 — Test Before Implementation
 
-For code changes, define acceptance tests before implementation and use Red-Green-Refactor where practical. Parser and source changes require regression fixtures. Defect fixes require a reproducible failure or clearly described evidence. A passing test suite does not prove factual correctness without a representative gold set.
+For deterministic code changes, define acceptance tests before implementation and use Red-Green-Refactor where practical. Parser and source changes require regression fixtures. Defect fixes require a reproducible failure or clearly described evidence. A passing test suite does not prove factual correctness without a representative gold set.
 
 ## Principle 9 — Source Policy and Privacy by Design
 

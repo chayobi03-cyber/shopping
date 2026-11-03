@@ -1,29 +1,53 @@
-# Agentic Toolchain Status
+# Rulebook Adoption and Verification Status
 
-## Current repository state
+## 1. Current policy
 
-| Component | Repository preparation | Local runtime installation |
+The repository adopts Superpowers and Spec Kit as **methodological references expressed in tool-independent Markdown rules**.
+
+- No Codex CLI installation is required.
+- No Spec Kit CLI installation is required.
+- No Superpowers plugin installation is required.
+- No specific coding-agent product is required.
+- GitHub Codespaces is an optional development environment, not an agent runtime requirement.
+
+## 2. Documentation status
+
+| Item | Repository status | Runtime status |
 |---|---|---|
-| Spec Kit | Bootstrap guide, Constitution source, and first feature brief committed | PENDING |
-| Superpowers | Workflow policy and skill routing committed | PENDING |
-| Shopping custom skills | Seven project-local skill definitions committed and mirrored under .agents/skills and .claude/skills | Available in Codex-compatible skill discovery after checkout |
-| Humanizer | Usage restrictions documented as optional | NOT INSTALLED / NOT REQUIRED |
+| Shopping Constitution | Proposed policy document | Human review/merge pending |
+| Rulebook | Proposed canonical operating policy | Applies after approved merge |
+| Agent workflow | Documented as tool-independent stages | Can be followed manually or by any agent |
+| Quality gates | Documented acceptance and verification controls | Automated enforcement not yet implemented unless separately evidenced |
+| Superpowers methods | Practices adapted into workflow documentation | Plugin not installed or required |
+| Spec Kit methods | Artifact lifecycle adapted into workflow documentation | CLI not installed or required |
+| Shopping domain skills | Seven definitions present in two agent-facing directories | Discovery/invocation depends on the selected agent and is not required |
+| Codespaces environment | Devcontainer and mobile guide committed | Codespace creation/runtime not verified |
 
-## Tool installation record
+## 3. Verification record
 
-Complete this table after installing tools in the actual coding environment.
+| Check | Result |
+|---|---|
+| Repository documents read from PR branch | PASS — read-back completed |
+| Seven Shopping skill mirrors | PASS — previously compared byte-for-byte |
+| Rulebook document changes | PENDING — verify after commit |
+| Markdown links and terminology | PENDING — verify after commit |
+| Tests | NOT_RUN — documentation/configuration-only change |
+| CI | NOT_RUN — no CI evidence collected in this task |
+| Codespaces startup | NOT_VERIFIED |
+| Agent/plugin installation | NOT_REQUIRED |
 
-| Field | Spec Kit | Superpowers |
-|---|---|---|
-| Upstream | https://github.com/github/spec-kit | https://github.com/obra/superpowers |
-| Installed version / revision | PENDING | PENDING |
-| Agent harness | PENDING | PENDING |
-| Install date | PENDING | PENDING |
-| Verification result | PENDING | PENDING |
-| Owner / environment | PENDING | PENDING |
+A repository file existing does not prove that a tool is installed, active, or able to discover it. Conversely, the documented practices can be used without installing a tool.
 
-## Important distinction
+## 4. Optional future tool record
 
-A checked-in skill definition is not proof that its runtime is installed or active. Likewise, a repository bootstrap guide does not install CLI software or plugins on a developer's computer.
+Only fill this section if a tool is deliberately adopted later:
 
-Mark a component as installed only after the selected coding agent can discover and invoke it and the verification steps in docs/agentic/SPECKIT_BOOTSTRAP.md have passed.
+| Field | Value |
+|---|---|
+| Tool / agent | NOT_SELECTED |
+| Version / revision | NOT_RECORDED |
+| Owner / environment | NOT_RECORDED |
+| Permissions / scopes | NOT_RECORDED |
+| Install date | NOT_RECORDED |
+| Verification command and result | NOT_RUN |
+| Review / expiry date | NOT_RECORDED |
