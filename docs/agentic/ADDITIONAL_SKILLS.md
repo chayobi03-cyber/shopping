@@ -45,7 +45,7 @@ A trivial documentation typo does not require the full sequence.
 
 ## 4. Project-local Shopping skills
 
-These are recommended custom skills stored in .agents/skills. They complement rather than replace Spec Kit or Superpowers.
+These are recommended custom skills mirrored in .agents/skills (Codex) and .claude/skills (Claude Code). Keep both copies identical when updating them. They complement rather than replace Spec Kit or Superpowers.
 
 | Skill | Trigger | Output |
 |---|---|---|
