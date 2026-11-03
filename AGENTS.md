@@ -17,7 +17,7 @@ For feature work, also read the active feature artifacts under specs/.
 - Superpowers supplies the engineering execution practices: brainstorming when scope is unclear, isolated workspaces, TDD, systematic debugging, code review, and verification before completion.
 - Do not create a second competing feature plan. When a Spec Kit plan exists, update that plan rather than creating a separate Superpowers plan.
 - The active Spec Kit feature is determined by Spec Kit project state, not merely by the checked-out Git branch. Verify the active feature directory before issuing feature commands.
-- Use the project-local skills under .agents/skills when their trigger conditions match. Do not edit generated Spec Kit or third-party plugin skill files.
+- Use the project-local skills under .agents/skills (Codex) or .claude/skills (Claude Code) when their trigger conditions match. Keep the mirrored shopping-* skill files identical. Do not edit generated Spec Kit or third-party plugin skill files.
 
 ## Non-negotiable product-data rules
 
