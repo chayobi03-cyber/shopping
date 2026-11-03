@@ -12,6 +12,10 @@
 - 모든 시간 값은 시간대 offset이 포함된 ISO-8601을 사용한다.
 - 미확인 값은 null로 저장하고 상태를 별도로 기록한다. 추정값을 검증값에 넣지 않는다.
 
+
+
+> Schema notation: the JSON blocks below are illustrative examples. Values such as "string|null" describe an allowed type (string or null); they are not intended to be stored as literal values. Replace placeholders with actual values and validate records against a formal JSON Schema before production use.
+
 ## 2. Entity relationship overview
 
 ~~~mermaid
