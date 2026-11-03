@@ -30,11 +30,11 @@
 11. [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) — 단계별 구현 계획과 비용 산식
 12. [TOOL_EVALUATION.md](TOOL_EVALUATION.md) — 도구 후보 및 선정 기준
 
-## End-to-end workflow
+## End-to-end research workflow
 
 Requirement → Product Identity → Source Discovery → Evidence Collection → Normalization → Verification → Quality Evaluation → Comparison → Human Approval → Report
 
-## 기본 원칙
+## Basic principles
 
 - 모델명, 품번, 시즌이 일치하지 않는 자료를 합쳐 하나의 사양으로 만들지 않는다.
 - 제조사 공식 자료와 판매자 설명을 동일한 수준의 근거로 취급하지 않는다.
@@ -46,7 +46,7 @@ Requirement → Product Identity → Source Discovery → Evidence Collection �
 - 원본 evidence와 정규화/판정 결과를 분리해 이력을 보존한다.
 - 구매·결제 등 외부 효과가 있는 행동은 사용자의 명시적 승인 없이 실행하지 않는다.
 
-## Common status vocabulary
+## Common data status vocabulary
 
 | Status | Meaning |
 |---|---|
@@ -60,17 +60,29 @@ Requirement → Product Identity → Source Discovery → Evidence Collection �
 | AVAILABLE | 특정 시점·판매처·옵션에서 구매 가능 확인 |
 | UNAVAILABLE | 특정 시점·판매처·옵션에서 구매 불가 확인 |
 
-## Initial implementation direction
+## Agentic engineering rulebook
 
-- Python 기반 모듈형 source adapters
-- PostgreSQL 기반 제품·변형·근거·오퍼 메타데이터
-- 파일/객체 저장소 기반 raw evidence 보존
-- Pydantic 또는 JSON Schema 기반 데이터 계약 검증
-- pytest 기반 parser/adapter regression tests
-- Markdown/CSV/JSON 기반 초기 결과 배포
+The repository uses a **tool-independent rulebook**. Superpowers and Spec Kit are reference methodologies; no specific agent, plugin, or CLI is required.
 
-대규모 orchestration, 분산 처리, 상용 PIM은 실제 규모와 운영 요건이 확인된 뒤 도입한다.
+- [AGENTS.md](AGENTS.md) — repository entry instructions
+- [Agentic Rulebook](docs/agentic/RULEBOOK.md) — canonical operating principles and authority
+- [Shopping Constitution](docs/agentic/SHOPPING_CONSTITUTION.md) — project invariants
+- [Agent Workflow](AGENT_WORKFLOW.md) — requirements-to-delivery process
+- [Quality Gates](docs/agentic/QUALITY_GATES.md) — acceptance, testing, evidence, review, and release controls
+- [Tool Independence](docs/agentic/TOOL_INDEPENDENCE.md) — tool-neutral execution policy
+- [Method Reference](docs/agentic/SPECKIT_BOOTSTRAP.md) — concepts adapted from Spec Kit and Superpowers
+- [Method and skill catalog](docs/agentic/ADDITIONAL_SKILLS.md) — optional practices and project-local skill adapters
+- [Adoption status](docs/agentic/TOOLCHAIN_STATUS.md) — what is documented versus actually verified
+- [First feature brief](specs/001-product-identity-resolver/FEATURE_BRIEF.md) — bounded Product Identity Resolver scope
 
-## Scope
+The canonical policy lives in Markdown documents under \`docs/agentic/\` and the domain standards. Tool-specific instruction files or skill folders are optional adapters and must not become a second source of truth.
 
-이 저장소는 제품 정보 조사·검증 시스템의 표준과 구현 설계를 관리한다. 특정 판매처의 재고나 가격을 영구적으로 보증하지 않으며, 수집 방식은 각 출처의 권한·약관·법적 조건을 확인한 범위에서만 사용한다.
+## Mobile-only development
+
+For Android-only development, GitHub Codespaces can provide a cloud Linux environment controlled from Chrome.
+
+- [Mobile-only setup guide](docs/agentic/MOBILE_ONLY_SETUP.md)
+- [Codespaces devcontainer](.devcontainer/devcontainer.json)
+- [Environment bootstrap](.devcontainer/post-create.sh)
+
+The environment bootstrap installs general development prerequisites only. It does not install or authenticate a coding agent, Spec Kit CLI, or Superpowers plugin. The rulebook can be used directly from repository documents.
