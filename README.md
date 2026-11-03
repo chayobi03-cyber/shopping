@@ -71,6 +71,20 @@ Requirement → Product Identity → Source Discovery → Evidence Collection �
 
 대규모 orchestration, 분산 처리, 상용 PIM은 실제 규모와 운영 요건이 확인된 뒤 도입한다.
 
+## Agentic Engineering
+
+This repository uses **Spec Kit** for specification lifecycle management and **Superpowers** for engineering execution discipline.
+
+- [AGENTS.md](AGENTS.md) — repository-wide agent guardrails
+- [AGENT_WORKFLOW.md](AGENT_WORKFLOW.md) — combined Spec Kit + Superpowers process
+- [Shopping Constitution](docs/agentic/SHOPPING_CONSTITUTION.md) — source principles for Spec Kit
+- [Bootstrap guide](docs/agentic/SPECKIT_BOOTSTRAP.md) — local CLI and plugin setup
+- [Additional skills](docs/agentic/ADDITIONAL_SKILLS.md) — core, project-specific, and optional skills
+- [Toolchain status](docs/agentic/TOOLCHAIN_STATUS.md) — installation and verification record
+- [First feature brief](specs/001-product-identity-resolver/FEATURE_BRIEF.md) — initial bounded feature for Spec Kit
+
+Project-local custom skills are in .agents/skills. The repository contains the skill definitions and setup rules; actual CLI/plugin installation must be verified in the local coding-agent environment.
+
 ## Scope
 
 이 저장소는 제품 정보 조사·검증 시스템의 표준과 구현 설계를 관리한다. 특정 판매처의 재고나 가격을 영구적으로 보증하지 않으며, 수집 방식은 각 출처의 권한·약관·법적 조건을 확인한 범위에서만 사용한다.
