@@ -6,7 +6,7 @@
 |---|---|---|
 | Spec Kit | Bootstrap guide, Constitution source, and first feature brief committed | PENDING |
 | Superpowers | Workflow policy and skill routing committed | PENDING |
-| Shopping custom skills | Six project-local skill definitions committed under .agents/skills | Available in Codex-compatible skill discovery after checkout |
+| Shopping custom skills | Seven project-local skill definitions committed and mirrored under .agents/skills and .claude/skills | Available in Codex-compatible skill discovery after checkout |
 | Humanizer | Usage restrictions documented as optional | NOT INSTALLED / NOT REQUIRED |
 
 ## Tool installation record
