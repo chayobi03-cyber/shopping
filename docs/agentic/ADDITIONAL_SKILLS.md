@@ -54,6 +54,7 @@ These are recommended custom skills mirrored in .agents/skills (Codex) and .clau
 | shopping-spec-normalization | Normalize product measurements, dimensions, materials, units, or technical properties | Raw and normalized values, unit conversion, scope, validation status |
 | shopping-stock-options | Verify seller, color, size, price, and current orderability | Variant-specific availability observation and checked_at |
 | shopping-data-quality | Audit a candidate set or dataset before comparison/release | Completeness, conflict, validity, uniqueness, integrity, freshness and provenance report |
+| shopping-agent-evaluation | Change prompts, LLM agents, identity/evidence/stock behavior, or thresholds | Gold-set evaluation, false-positive rate, regression report, release recommendation |
 | shopping-source-policy | Add or automate a source | Terms/license/privacy/rate-limit review and ACTIVE/BLOCKED decision |
 
 ## 5. Optional external skills/tools
