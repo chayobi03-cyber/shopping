@@ -29,8 +29,8 @@ The repository adopts Superpowers and Spec Kit as **methodological references ex
 |---|---|
 | Repository documents read from PR branch | PASS — read-back completed |
 | Seven Shopping skill mirrors | PASS — previously compared byte-for-byte |
-| Rulebook document changes | PENDING — verify after commit |
-| Markdown links and terminology | PENDING — verify after commit |
+| Rulebook document changes | PASS — 13 modified/new files read back from commit dfb4faccd18efcc7248aab4f4b80e18d0a197d5e |
+| Markdown links and terminology | PARTIALLY_VERIFIED — primary authored references and agent-specific setup assumptions reviewed; no repository-wide link linter run |
 | Tests | NOT_RUN — documentation/configuration-only change |
 | CI | NOT_RUN — no CI evidence collected in this task |
 | Codespaces startup | NOT_VERIFIED |
