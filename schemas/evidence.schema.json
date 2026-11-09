@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chayobi03-cyber/shopping/schemas/evidence.schema.json",
+  "title": "Shopping Evidence Record",
+  "type": "object",
+  "required": ["evidence_id", "source_id", "url", "retrieved_at", "field_key", "verification_status"],
+  "properties": {
+    "evidence_id": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "url": {"type": "string", "format": "uri"},
+    "source_grade": {"enum": ["A", "B", "C", "D", "E", "UNKNOWN"]},
+    "field_key": {"type": "string", "minLength": 1},
+    "raw_value": {},
+    "normalized_value": {},
+    "unit": {"type": ["string", "null"]},
+    "product_identity_match": {"enum": ["VERIFIED", "PARTIAL", "NO_MATCH", "UNKNOWN"]},
+    "locator": {"type": ["string", "null"]},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "observed_at": {"type": ["string", "null"], "format": "date-time"},
+    "verification_status": {"enum": ["VERIFIED", "PARTIALLY_VERIFIED", "CONFLICT", "UNKNOWN", "NOT_APPLICABLE"]},
+    "notes": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}
