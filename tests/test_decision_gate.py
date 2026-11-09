@@ -46,7 +46,13 @@ def test_empty_gates_fail_closed():
     assert evaluate_decision({}, "PASS", ["ev-001"]) == "DATA_NOT_READY"
 
 
-def test_unknown_gate_state_fails_closed():
+def test_missing_mandatory_gate_fails_closed():
     gates = base_gates()
-    gates["seller"] = "UNRECOGNIZED"
+    del gates["size_110"]
+    assert evaluate_decision(gates, "PASS", ["ev-001"]) == "DATA_NOT_READY"
+
+
+def test_unrecognized_mandatory_gate_state_fails_closed():
+    gates = base_gates()
+    gates["stock"] = "UNRECOGNIZED"
     assert evaluate_decision(gates, "PASS", ["ev-001"]) == "DATA_NOT_READY"
