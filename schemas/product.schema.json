@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chayobi03-cyber/shopping/schemas/product.schema.json",
+  "title": "Shopping Product Variant",
+  "type": "object",
+  "required": ["product_variant_id", "brand", "model_name", "category", "gender", "condition", "identity_status"],
+  "properties": {
+    "product_variant_id": {"type": "string", "minLength": 1},
+    "brand": {"type": "string", "minLength": 1},
+    "model_name": {"type": "string", "minLength": 1},
+    "manufacturer_sku": {"type": ["string", "null"]},
+    "season": {"type": ["string", "null"]},
+    "category": {"type": "string", "minLength": 1},
+    "gender": {"enum": ["men", "women", "unisex", "unknown"]},
+    "condition": {"enum": ["NEW", "USED", "UNKNOWN"]},
+    "size_label": {"type": ["string", "null"]},
+    "size_chart_evidence_ref": {"type": ["string", "null"]},
+    "identity_status": {"enum": ["VERIFIED", "PARTIALLY_VERIFIED", "CONFLICT", "UNKNOWN"]},
+    "fiber_composition": {"type": ["object", "null"]},
+    "source_refs": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}
