@@ -129,6 +129,10 @@ def evaluate_price_cap(
     evidence_ref: str | None = None,
 ) -> GateResult:
     """Compare known payable price (item + shipping + mandatory costs) to cap."""
+    if not isinstance(max_total_price, int) or isinstance(max_total_price, bool):
+        raise TypeError("Maximum total price must be an integer KRW amount.")
+    if not isinstance(mandatory_extra_cost, int) or isinstance(mandatory_extra_cost, bool):
+        raise TypeError("Mandatory extra cost must be an integer KRW amount.")
     values = (sale_price, shipping_cost, max_total_price, mandatory_extra_cost)
     if any(v is not None and (not isinstance(v, int) or isinstance(v, bool)) for v in values):
         raise TypeError("Prices must be integer KRW amounts.")
@@ -160,6 +164,31 @@ def calculate_discount_percent(reference_price: int | None, sale_price: int | No
     return round((reference_price - sale_price) / reference_price * 100, 1)
 
 
+def evaluate_discount_claim(
+    reference_price: int | None,
+    sale_price: int | None,
+    *,
+    reference_basis: str,
+    reference_verified: bool,
+    reference_evidence_ref: str | None,
+) -> GateResult:
+    """Assess whether a displayed discount has a defensible comparison baseline."""
+    percent = calculate_discount_percent(reference_price, sale_price)
+    if percent is None:
+        return GateResult("UNKNOWN", "DISCOUNT_BASELINE_MISSING",
+                          "Reference and sale prices are not both valid.")
+    if not reference_verified or not reference_evidence_ref:
+        return GateResult("UNKNOWN", "DISCOUNT_BASELINE_UNVERIFIED",
+                          "Reference price lacks independently verifiable evidence.")
+    if reference_basis not in {"OFFICIAL_MSRP", "VERIFIED_HISTORICAL_PRICE"}:
+        return GateResult("UNKNOWN", "DISCOUNT_BASELINE_WEAK",
+                          "Seller crossed-out/list price is not a verified discount baseline.",
+                          (reference_evidence_ref,), {"arithmetic_discount_percent": percent})
+    return GateResult("PASS", "DISCOUNT_BASELINE_VERIFIED",
+                      "Discount is calculated against a verified comparison baseline.",
+                      (reference_evidence_ref,), {"discount_percent": percent, "reference_basis": reference_basis})
+
+
 def evaluate_availability(
     availability: str,
     verification_method: str,
@@ -176,7 +205,7 @@ def evaluate_availability(
         return GateResult("FAIL", "OPTION_UNAVAILABLE", "Requested option is sold out or missing.")
     if availability not in {"AVAILABLE", "LOW_STOCK"}:
         return GateResult("UNKNOWN", "AVAILABILITY_UNCONFIRMED", "Availability is not confirmed for immediate purchase.")
-    if not selected_options or dict(selected_options) != dict(expected_options):
+    if not expected_options or not selected_options or dict(selected_options) != dict(expected_options):
         return GateResult("UNKNOWN", "OPTION_NOT_SELECTED", "Exact requested color/size options were not verified.")
     allowed_methods = {"option_selection", "cart_step", "seller_api", "seller_confirmation"}
     if verification_method not in allowed_methods:
@@ -204,9 +233,11 @@ def validate_evidence_coverage(
             if record.get("field_key") == field_key
             and record.get("product_variant_id") == product_variant_id
             and record.get("verification_status") == "VERIFIED"
+            and record.get("identity_match") == "VERIFIED"
             and record.get("source_id")
             and record.get("evidence_id")
             and record.get("url")
+            and record.get("locator")
             and record.get("retrieved_at")
         ]
         if not matches:
