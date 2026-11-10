@@ -169,15 +169,17 @@ def evaluate_price_cap(
     shipping_cost: int | None,
     max_total_price: int,
     *,
-    mandatory_extra_cost: int = 0,
+    mandatory_extra_cost: int | None = None,
     currency: str = "KRW",
     evidence_ref: str | None = None,
 ) -> GateResult:
     """Compare known payable price (item + shipping + mandatory costs) to cap."""
     if not isinstance(max_total_price, int) or isinstance(max_total_price, bool):
         raise TypeError("Maximum total price must be an integer KRW amount.")
-    if not isinstance(mandatory_extra_cost, int) or isinstance(mandatory_extra_cost, bool):
-        raise TypeError("Mandatory extra cost must be an integer KRW amount.")
+    if mandatory_extra_cost is not None and (
+        not isinstance(mandatory_extra_cost, int) or isinstance(mandatory_extra_cost, bool)
+    ):
+        raise TypeError("Mandatory extra cost must be an integer KRW amount or None.")
     values = (sale_price, shipping_cost, max_total_price, mandatory_extra_cost)
     if any(v is not None and (not isinstance(v, int) or isinstance(v, bool)) for v in values):
         raise TypeError("Prices must be integer KRW amounts.")
@@ -185,6 +187,9 @@ def evaluate_price_cap(
         return GateResult("UNKNOWN", "CURRENCY_UNSUPPORTED", "Price must be normalized to KRW.")
     if sale_price is None or shipping_cost is None:
         return GateResult("UNKNOWN", "PRICE_COMPONENT_MISSING", "Sale price and shipping cost must both be known.")
+    if mandatory_extra_cost is None:
+        return GateResult("UNKNOWN", "MANDATORY_COSTS_UNKNOWN",
+                          "Mandatory additional costs must be confirmed or explicitly recorded as zero.")
     if sale_price < 0 or shipping_cost < 0 or max_total_price < 0 or mandatory_extra_cost < 0:
         raise ValueError("Prices and price limits must be non-negative.")
     if not evidence_ref:
@@ -216,8 +221,16 @@ def evaluate_discount_claim(
     reference_basis: str,
     reference_verified: bool,
     reference_evidence_ref: str | None,
+    reference_product_variant_id: str | None,
+    sale_product_variant_id: str | None,
 ) -> GateResult:
-    """Assess whether a displayed discount has a defensible comparison baseline."""
+    """Assess discount credibility against the same exact product variant."""
+    if not reference_product_variant_id or not sale_product_variant_id:
+        return GateResult("UNKNOWN", "DISCOUNT_IDENTITY_MISSING",
+                          "Reference and sale price must both identify the exact product variant.")
+    if reference_product_variant_id != sale_product_variant_id:
+        return GateResult("UNKNOWN", "DISCOUNT_IDENTITY_MISMATCH",
+                          "Reference price belongs to a different product variant.")
     percent = calculate_discount_percent(reference_price, sale_price)
     if percent is None:
         return GateResult("UNKNOWN", "DISCOUNT_BASELINE_MISSING",
