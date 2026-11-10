@@ -61,6 +61,40 @@ def evaluate_freshness(
                       details={"age_seconds": max(0, round(age)), "ttl_seconds": ttl_seconds})
 
 
+def evaluate_gender_match(
+    requested_gender: str,
+    observed_gender: str | None,
+    *,
+    evidence_ref: str | None = None,
+) -> GateResult:
+    if not requested_gender or not observed_gender:
+        return GateResult("UNKNOWN", "GENDER_MISSING", "Requested or observed gender is missing.")
+    if observed_gender == "unisex" and requested_gender in {"men", "women", "unisex"}:
+        if not evidence_ref:
+            return GateResult("UNKNOWN", "GENDER_EVIDENCE_MISSING", "Gender classification has no evidence reference.")
+        return GateResult("PASS", "GENDER_COMPATIBLE", "Unisex product is compatible with the requested gender.", (evidence_ref,))
+    if observed_gender != requested_gender:
+        return GateResult("FAIL", "GENDER_MISMATCH", "Product gender does not match the request.")
+    if not evidence_ref:
+        return GateResult("UNKNOWN", "GENDER_EVIDENCE_MISSING", "Gender classification has no evidence reference.")
+    return GateResult("PASS", "GENDER_MATCH", "Product gender matches the request.", (evidence_ref,))
+
+
+def evaluate_condition(
+    requested_condition: str,
+    observed_condition: str | None,
+    *,
+    evidence_ref: str | None = None,
+) -> GateResult:
+    if not requested_condition or not observed_condition:
+        return GateResult("UNKNOWN", "CONDITION_MISSING", "Requested or observed product condition is missing.")
+    if observed_condition != requested_condition:
+        return GateResult("FAIL", "CONDITION_MISMATCH", "Product condition does not match the request.")
+    if not evidence_ref:
+        return GateResult("UNKNOWN", "CONDITION_EVIDENCE_MISSING", "Condition has no evidence reference.")
+    return GateResult("PASS", "CONDITION_MATCH", "Product condition matches the request.", (evidence_ref,))
+
+
 def evaluate_identity(
     expected_product_variant_id: str | None,
     observed_product_variant_id: str | None,
