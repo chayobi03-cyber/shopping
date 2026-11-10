@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+import json
 from typing import Any, Mapping, Sequence
 
 
@@ -287,23 +288,43 @@ def validate_evidence_coverage(
         raise ValueError("At least one required evidence field must be specified.")
     missing: list[str] = []
     refs: list[str] = []
+    conflicts: dict[str, str] = {}
     for field_key in required_field_keys:
-        matches = [
+        scoped = [
             record for record in evidence_records
             if record.get("field_key") == field_key
             and record.get("product_variant_id") == product_variant_id
-            and record.get("verification_status") == "VERIFIED"
+        ]
+        if any(record.get("verification_status") == "CONFLICT" for record in scoped):
+            conflicts[field_key] = "explicit conflicting assertion"
+            continue
+        matches = [
+            record for record in scoped
+            if record.get("verification_status") == "VERIFIED"
             and record.get("identity_match") == "VERIFIED"
             and record.get("source_id")
             and record.get("evidence_id")
             and record.get("url")
             and record.get("locator")
             and record.get("retrieved_at")
+            and record.get("normalized_value") is not None
         ]
+        normalized_values = {
+            (json.dumps(record.get("normalized_value"), sort_keys=True, ensure_ascii=False),
+             str(record.get("unit") or ""))
+            for record in matches
+        }
+        if len(normalized_values) > 1:
+            conflicts[field_key] = "verified sources disagree on normalized value or unit"
+            continue
         if not matches:
             missing.append(field_key)
         else:
             refs.extend(str(record["evidence_id"]) for record in matches)
+    if conflicts:
+        return GateResult("UNKNOWN", "EVIDENCE_CONFLICT",
+                          "Decision-critical evidence contains unresolved conflicting assertions.",
+                          tuple(sorted(set(refs))), {"conflicting_fields": conflicts})
     if missing:
         return GateResult("UNKNOWN", "EVIDENCE_COVERAGE_INCOMPLETE",
                           "One or more required fields lack verified, product-scoped evidence.",
