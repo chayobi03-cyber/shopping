@@ -155,6 +155,7 @@ def test_evidence_must_match_variant_and_field():
         "verification_status": "VERIFIED", "source_id": "official",
         "evidence_id": EV, "url": "https://example.com/spec",
         "retrieved_at": NOW, "identity_match": "VERIFIED", "locator": "spec table / fiber row",
+        "normalized_value": {"wool": 100}, "unit": "percent",
     }]
     assert validate_evidence_coverage(["fiber_composition"], records, VARIANT).status == "PASS"
     assert validate_evidence_coverage(["size_chart"], records, VARIANT).status == "UNKNOWN"
@@ -241,3 +242,31 @@ def test_discount_claim_requires_variant_identity():
         reference_product_variant_id=None, sale_product_variant_id=VARIANT
     )
     assert result.status == "UNKNOWN"
+
+
+def test_conflicting_verified_assertions_block_evidence_coverage():
+    base = {
+        "field_key": "fiber_composition", "product_variant_id": VARIANT,
+        "verification_status": "VERIFIED", "identity_match": "VERIFIED",
+        "source_id": "official", "url": "https://example.com/spec",
+        "retrieved_at": NOW, "locator": "composition table",
+        "normalized_value": {"wool": 100}, "unit": "percent",
+    }
+    other = dict(base, evidence_id="ev-conflict-02", source_id="retailer",
+                 normalized_value={"wool": 80, "nylon": 20})
+    result = validate_evidence_coverage(
+        ["fiber_composition"], [dict(base, evidence_id="ev-verified-01"), other], VARIANT
+    )
+    assert result.status == "UNKNOWN"
+    assert result.code == "EVIDENCE_CONFLICT"
+
+
+def test_explicit_conflict_status_blocks_evidence_coverage():
+    record = {
+        "field_key": "fiber_composition", "product_variant_id": VARIANT,
+        "verification_status": "CONFLICT", "identity_match": "VERIFIED",
+        "source_id": "retailer", "evidence_id": "ev-conflict",
+        "url": "https://example.com/spec", "retrieved_at": NOW,
+        "locator": "composition table", "normalized_value": {"wool": 70}, "unit": "percent",
+    }
+    assert validate_evidence_coverage(["fiber_composition"], [record], VARIANT).code == "EVIDENCE_CONFLICT"
