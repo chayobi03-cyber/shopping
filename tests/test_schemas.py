@@ -41,3 +41,38 @@ def test_offer_schema_rejects_missing_availability_check_time():
     }
     errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(sample))
     assert any(error.validator == "required" for error in errors)
+
+
+def test_decision_schema_rejects_buy_with_unknown_hard_gate():
+    schema = json.loads((SCHEMA_DIR / "decision.schema.json").read_text(encoding="utf-8"))
+    sample = {
+        "decision_id": "dec-001",
+        "product_variant_id": "prod-001",
+        "as_of": "2026-11-10T09:00:00+09:00",
+        "hard_gates": {
+            "gender": "PASS", "size_110": "UNKNOWN", "new": "PASS",
+            "price_cap": "PASS", "identity": "PASS", "stock": "PASS"
+        },
+        "decision": "BUY",
+        "evidence_refs": ["ev-001"],
+        "review_status": "PASS"
+    }
+    errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(sample))
+    assert errors
+
+
+def test_decision_schema_accepts_fully_verified_buy_snapshot():
+    schema = json.loads((SCHEMA_DIR / "decision.schema.json").read_text(encoding="utf-8"))
+    sample = {
+        "decision_id": "dec-002",
+        "product_variant_id": "prod-001",
+        "as_of": "2026-11-10T09:00:00+09:00",
+        "hard_gates": {
+            "gender": "PASS", "size_110": "PASS", "new": "PASS",
+            "price_cap": "PASS", "identity": "PASS", "stock": "PASS"
+        },
+        "decision": "BUY",
+        "evidence_refs": ["ev-001", "ev-002"],
+        "review_status": "PASS"
+    }
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(sample)
