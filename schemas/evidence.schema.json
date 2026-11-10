@@ -3,7 +3,7 @@
   "$id": "https://github.com/chayobi03-cyber/shopping/schemas/evidence.schema.json",
   "title": "Shopping Evidence Record",
   "type": "object",
-  "required": ["evidence_id", "source_id", "product_variant_id", "url", "retrieved_at", "field_key", "identity_match", "locator", "verification_status"],
+  "required": ["evidence_id", "source_id", "product_variant_id", "url", "retrieved_at", "field_key", "identity_match", "locator", "normalized_value", "verification_status"],
   "properties": {
     "evidence_id": {"type": "string", "minLength": 1},
     "source_id": {"type": "string", "minLength": 1},
