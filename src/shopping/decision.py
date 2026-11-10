@@ -13,7 +13,7 @@ UNKNOWN = "UNKNOWN"
 STALE = "STALE"
 
 REQUIRED_HARD_GATES = frozenset({
-    "gender", "size_110", "new", "price_cap", "identity", "stock", "evidence_coverage"
+    "gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock", "evidence_coverage"
 })
 
 
@@ -78,7 +78,8 @@ def evaluate_candidate(
         if message:
             reasons.append(f"{name}: {message}")
     reviewer_status = getattr(reviewer_result, "status", UNKNOWN)
-    reviewer_status = reviewer_status if reviewer_status == PASS else UNKNOWN
+    reviewer_code = getattr(reviewer_result, "code", "")
+    reviewer_status = PASS if reviewer_status == PASS and reviewer_code == "REVIEW_INDEPENDENT_PASS" else UNKNOWN
     decision = evaluate_decision(gates, reviewer_status, sorted(refs))
     if reviewer_status != PASS:
         reasons.append("Independent review has not passed.")
