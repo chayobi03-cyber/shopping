@@ -34,7 +34,7 @@ class DecisionResult:
 
 def evaluate_decision(
     hard_gates: Mapping[str, str],
-    reviewer_status: str,
+    reviewer_result: object,
     evidence_refs: Sequence[str],
 ) -> str:
     """Return BUY/REJECT/DATA_NOT_READY using fail-closed semantics."""
@@ -46,7 +46,10 @@ def evaluate_decision(
         return "DATA_NOT_READY"
     if not evidence_refs:
         return "DATA_NOT_READY"
-    if reviewer_status not in ("PASS", "PASS_WITH_WARNINGS"):
+    if (
+        getattr(reviewer_result, "status", None) != PASS
+        or getattr(reviewer_result, "code", None) != "REVIEW_INDEPENDENT_PASS"
+    ):
         return "DATA_NOT_READY"
     return "BUY"
 
@@ -80,7 +83,7 @@ def evaluate_candidate(
     reviewer_status = getattr(reviewer_result, "status", UNKNOWN)
     reviewer_code = getattr(reviewer_result, "code", "")
     reviewer_status = PASS if reviewer_status == PASS and reviewer_code == "REVIEW_INDEPENDENT_PASS" else UNKNOWN
-    decision = evaluate_decision(gates, reviewer_status, sorted(refs))
+    decision = evaluate_decision(gates, reviewer_result, sorted(refs))
     if reviewer_status != PASS:
         reasons.append("Independent review has not passed.")
     return DecisionResult(decision, gates, reviewer_status, tuple(sorted(refs)), tuple(reasons))
