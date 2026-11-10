@@ -68,7 +68,7 @@ def test_candidate_composition_requires_evidence_coverage_and_review():
         name: GateResult(PASS, "OK", "passed", ("ev-001",))
         for name in ["gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock", "evidence_coverage"]
     }
-    decision = evaluate_candidate(results, validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], []))
+    decision = evaluate_candidate(results, validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], [], [["review-ev-001"]]))
     assert decision.decision == "BUY"
     assert decision.hard_gates["evidence_coverage"] == PASS
 
@@ -78,14 +78,14 @@ def test_candidate_composition_missing_evidence_coverage_is_not_ready():
         name: GateResult(PASS, "OK", "passed", ("ev-001",))
         for name in ["gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock"]
     }
-    decision = evaluate_candidate(results, GateResult(PASS, "REVIEW_OK", "independent review passed"))
+    decision = evaluate_candidate(results, clean_review())
     assert decision.decision == "DATA_NOT_READY"
 
 
 def test_candidate_composition_failed_review_blocks_buy():
     results = {
         name: GateResult(PASS, "OK", "passed", ("ev-001",))
-        for name in ["gender", "size_110", "new", "price_cap", "identity", "stock", "evidence_coverage"]
+        for name in ["gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock", "evidence_coverage"]
     }
     decision = evaluate_candidate(results, GateResult("UNKNOWN", "REVIEW_PENDING", "review pending"))
     assert decision.decision == "DATA_NOT_READY"
