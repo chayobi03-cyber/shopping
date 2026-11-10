@@ -3,22 +3,23 @@
   "$id": "https://github.com/chayobi03-cyber/shopping/schemas/offer.schema.json",
   "title": "Shopping Offer Observation",
   "type": "object",
-  "required": ["offer_id", "product_variant_id", "seller", "url", "currency", "sale_price", "checked_at", "availability", "availability_checked_at"],
+  "required": ["offer_id", "product_variant_id", "seller", "url", "condition", "currency", "sale_price", "shipping_cost", "price_conditions", "checked_at", "availability", "size_option", "color_option", "availability_checked_at"],
   "properties": {
     "offer_id": {"type": "string"},
     "product_variant_id": {"type": "string"},
     "seller": {"type": "string"},
     "url": {"type": "string", "format": "uri"},
+    "condition": {"enum": ["NEW", "USED", "UNKNOWN"]},
     "currency": {"const": "KRW"},
     "list_price": {"type": ["integer", "null"], "minimum": 0},
     "sale_price": {"type": "integer", "minimum": 0},
     "shipping_cost": {"type": ["integer", "null"], "minimum": 0},
+    "price_conditions": {"type": "array", "items": {"type": "string"}},
     "checked_at": {"type": "string", "format": "date-time"},
     "availability": {"enum": ["AVAILABLE", "LOW_STOCK", "SOLD_OUT", "OPTION_MISSING", "PREORDER", "BACKORDER", "UNVERIFIED", "UNKNOWN"]},
     "size_option": {"type": ["string", "null"]},
     "color_option": {"type": ["string", "null"]},
-    "availability_checked_at": {"type": "string", "format": "date-time"},
-    "price_conditions": {"type": "array", "items": {"type": "string"}}
+    "availability_checked_at": {"type": "string", "format": "date-time"}
   },
   "additionalProperties": false
 }
