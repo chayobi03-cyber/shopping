@@ -8,7 +8,9 @@ from jsonschema.exceptions import ValidationError
 from shopping.artifacts import (
     append_csv_observation,
     create_run_manifest,
+    finalize_run_manifest,
     render_decision_report,
+    write_markdown_report,
     validate_json_artifact,
     write_immutable_json,
 )
@@ -101,3 +103,25 @@ def test_markdown_report_is_rendered_from_snapshot():
     assert "# Shopping Decision — dec-001" in report
     assert "| size_110 | PASS |" in report
     assert "review-ev-001" in report
+
+
+def test_terminal_run_manifest_has_completion_timestamp():
+    manifest = create_run_manifest("req-001", "feature/test", run_id="run-002")
+    finalized = finalize_run_manifest(manifest, status="DATA_NOT_READY", notes=["Missing seller evidence"])
+    validate_json_artifact(finalized, SCHEMAS / "run-manifest.schema.json")
+    assert finalized["completed_at"]
+    assert finalized["status"] == "DATA_NOT_READY"
+    assert manifest["completed_at"] is None
+
+
+def test_run_manifest_cannot_be_finalized_as_running():
+    with pytest.raises(ValueError):
+        finalize_run_manifest(create_run_manifest("req-001", "feature/test"), status="RUNNING")
+
+
+def test_markdown_report_is_created_immutably(tmp_path):
+    report = "# Pilot report\n\nDATA_NOT_READY\n"
+    path = write_markdown_report(tmp_path, "reports/pilot.md", report)
+    assert path.read_text(encoding="utf-8") == report
+    with pytest.raises(FileExistsError):
+        write_markdown_report(tmp_path, "reports/pilot.md", report)
