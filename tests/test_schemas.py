@@ -51,7 +51,7 @@ def test_decision_schema_rejects_buy_with_unknown_hard_gate():
         "as_of": "2026-11-10T09:00:00+09:00",
         "hard_gates": {
             "gender": "PASS", "size_110": "UNKNOWN", "new": "PASS",
-            "price_cap": "PASS", "identity": "PASS", "stock": "PASS",
+            "price_cap": "PASS", "price_freshness": "PASS", "identity": "PASS", "stock": "PASS",
             "evidence_coverage": "PASS"
         },
         "decision": "BUY",
@@ -70,7 +70,7 @@ def test_decision_schema_accepts_fully_verified_buy_snapshot():
         "as_of": "2026-11-10T09:00:00+09:00",
         "hard_gates": {
             "gender": "PASS", "size_110": "PASS", "new": "PASS",
-            "price_cap": "PASS", "identity": "PASS", "stock": "PASS",
+            "price_cap": "PASS", "price_freshness": "PASS", "identity": "PASS", "stock": "PASS",
             "evidence_coverage": "PASS"
         },
         "decision": "BUY",
