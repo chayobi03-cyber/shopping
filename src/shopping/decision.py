@@ -44,6 +44,7 @@ def evaluate_decision(
     if any(
         isinstance(hard_gate_results.get(name), GateResult)
         and hard_gate_results[name].status == FAIL
+        and bool(hard_gate_results[name].evidence_refs)
         for name in REQUIRED_HARD_GATES
     ):
         return "REJECT"
