@@ -78,3 +78,40 @@ def test_decision_schema_accepts_fully_verified_buy_snapshot():
         "review_status": "PASS"
     }
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(sample)
+
+
+def test_review_record_schema_accepts_independent_reviewer_record():
+    schema = json.loads((SCHEMA_DIR / "review.schema.json").read_text(encoding="utf-8"))
+    sample = {
+        "review_id": "review-001",
+        "subject_run_id": "run-primary",
+        "reviewer_run_id": "run-review",
+        "reviewed_at": "2026-11-10T09:00:00+09:00",
+        "outcome": "PASS",
+        "checks": [
+            {"check_id": "identity", "status": "PASS", "evidence_refs": ["ev-001"]},
+            {"check_id": "size_110", "status": "PASS", "evidence_refs": ["ev-002"]}
+        ],
+        "findings": []
+    }
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(sample)
+
+
+def test_run_manifest_schema_accepts_reproducible_run():
+    schema = json.loads((SCHEMA_DIR / "run-manifest.schema.json").read_text(encoding="utf-8"))
+    sample = {
+        "run_id": "run-001",
+        "request_id": "req-001",
+        "started_at": "2026-11-10T09:00:00+09:00",
+        "completed_at": None,
+        "status": "DATA_NOT_READY",
+        "branch": "feature/hybrid-agentic-spec-kit",
+        "commit_sha": None,
+        "agents": [{"agent_id": "size-stock", "task_id": "T-SIZE-01",
+                    "status": "DATA_NOT_READY", "output_refs": []}],
+        "artifact_refs": ["spec.md"],
+        "evidence_refs": [],
+        "decision_refs": [],
+        "notes": ["No products are approved yet."]
+    }
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(sample)
