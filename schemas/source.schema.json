@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chayobi03-cyber/shopping/schemas/source.schema.json",
+  "title": "Shopping Source Registry Record",
+  "type": "object",
+  "required": ["source_id", "organization", "source_name", "source_type", "officialness", "grade", "url", "access_method", "status", "last_checked_at"],
+  "properties": {
+    "source_id": {"type": "string"},
+    "organization": {"type": "string"},
+    "source_name": {"type": "string"},
+    "source_type": {"enum": ["manufacturer", "certification", "distributor", "retailer", "marketplace", "review", "community", "manual"]},
+    "officialness": {"enum": ["official", "authorized", "third_party", "user_generated", "unknown"]},
+    "grade": {"enum": ["A", "B", "C", "D", "E", "UNKNOWN"]},
+    "url": {"type": "string", "format": "uri"},
+    "access_method": {"enum": ["api", "feed", "download", "permitted_web", "manual"]},
+    "terms_url": {"type": ["string", "null"], "format": "uri"},
+    "coverage": {"type": "array", "items": {"type": "string"}},
+    "rate_limit_note": {"type": ["string", "null"]},
+    "retention_policy": {"type": ["string", "null"]},
+    "status": {"enum": ["ACTIVE", "DEGRADED", "BLOCKED", "RETIRED", "UNKNOWN"]},
+    "last_checked_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}
