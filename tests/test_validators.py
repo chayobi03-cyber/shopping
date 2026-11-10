@@ -1,5 +1,6 @@
 from shopping.validators import (
     calculate_discount_percent,
+    evaluate_discount_claim,
     evaluate_availability,
     evaluate_freshness,
     evaluate_identity,
@@ -69,6 +70,23 @@ def test_unknown_reference_price_has_no_discount_claim():
     assert calculate_discount_percent(None, 29900) is None
 
 
+def test_seller_list_price_is_not_a_verified_discount_baseline():
+    result = evaluate_discount_claim(
+        59900, 29900, reference_basis="SELLER_LIST_PRICE",
+        reference_verified=True, reference_evidence_ref=EV
+    )
+    assert result.status == "UNKNOWN"
+
+
+def test_official_msrp_with_evidence_can_support_discount_claim():
+    result = evaluate_discount_claim(
+        59900, 29900, reference_basis="OFFICIAL_MSRP",
+        reference_verified=True, reference_evidence_ref=EV
+    )
+    assert result.status == "PASS"
+    assert result.details["discount_percent"] == 50.1
+
+
 def test_future_timestamp_fails_closed():
     assert evaluate_freshness("2026-11-10T10:00:00+09:00", 7200, now=NOW).status == "UNKNOWN"
 
@@ -131,7 +149,7 @@ def test_evidence_must_match_variant_and_field():
         "field_key": "fiber_composition", "product_variant_id": VARIANT,
         "verification_status": "VERIFIED", "source_id": "official",
         "evidence_id": EV, "url": "https://example.com/spec",
-        "retrieved_at": NOW,
+        "retrieved_at": NOW, "identity_match": "VERIFIED", "locator": "spec table / fiber row",
     }]
     assert validate_evidence_coverage(["fiber_composition"], records, VARIANT).status == "PASS"
     assert validate_evidence_coverage(["size_chart"], records, VARIANT).status == "UNKNOWN"
