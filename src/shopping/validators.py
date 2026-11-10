@@ -145,10 +145,14 @@ def evaluate_size_match(
     mapped = str(chart_mapping.get("normalized_size", "")).strip().upper()
     mapping_status = chart_mapping.get("verification_status")
     mapping_product = chart_mapping.get("product_variant_id")
+    mapping_advertised_size = str(chart_mapping.get("advertised_size", "")).strip().upper()
     mapping_evidence = chart_mapping.get("evidence_ref")
-    if not expected_product_variant_id or not mapping_product or not mapping_evidence:
+    if not expected_product_variant_id or not mapping_product or not mapping_evidence or not mapping_advertised_size:
         return GateResult("UNKNOWN", "SIZE_MAPPING_PROVENANCE_MISSING",
-                          "Size mapping lacks exact product scope or evidence.")
+                          "Size mapping lacks exact product scope, source size label, or evidence.")
+    if mapping_advertised_size != advertised_size.strip().upper():
+        return GateResult("FAIL", "SIZE_MAPPING_LABEL_MISMATCH",
+                          "Size chart mapping does not apply to the advertised size label.")
     if mapping_product != expected_product_variant_id:
         return GateResult("FAIL", "SIZE_MAPPING_PRODUCT_MISMATCH", "Size chart applies to another product variant.")
     if mapping_status != "VERIFIED":
@@ -302,6 +306,7 @@ def validate_independent_review(
     outcome: str,
     check_statuses: Sequence[str],
     finding_severities: Sequence[str],
+    check_evidence_refs: Sequence[Sequence[str]],
 ) -> GateResult:
     """Validate reviewer independence and prevent a positive outcome over blocking findings."""
     if not subject_run_id or not reviewer_run_id:
@@ -310,6 +315,10 @@ def validate_independent_review(
         return GateResult("FAIL", "REVIEW_NOT_INDEPENDENT", "Reviewer must use a distinct run from the subject.")
     if not check_statuses:
         return GateResult("UNKNOWN", "REVIEW_CHECKS_MISSING", "Independent review has no recorded checks.")
+    if len(check_statuses) != len(check_evidence_refs):
+        return GateResult("UNKNOWN", "REVIEW_EVIDENCE_MISMATCH", "Every review check must have a corresponding evidence list.")
+    if any(status == "PASS" and not refs for status, refs in zip(check_statuses, check_evidence_refs)):
+        return GateResult("UNKNOWN", "REVIEW_CHECK_EVIDENCE_MISSING", "A passed review check has no evidence references.")
     allowed_checks = {"PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"}
     if any(status not in allowed_checks for status in check_statuses):
         return GateResult("UNKNOWN", "REVIEW_CHECK_STATUS_INVALID", "Review contains an unrecognized check status.")
@@ -326,4 +335,6 @@ def validate_independent_review(
         return GateResult("UNKNOWN", "REVIEW_INCOMPLETE", "Independent review remains incomplete.")
     if any(severity not in {"CRITICAL", "HIGH", "MEDIUM", "LOW"} for severity in finding_severities):
         return GateResult("UNKNOWN", "REVIEW_FINDING_INVALID", "Review contains an invalid finding severity.")
-    return GateResult("PASS", "REVIEW_INDEPENDENT_PASS", "Independent review is distinct and has no blocking findings.")
+    review_refs = tuple(sorted({str(ref) for refs in check_evidence_refs for ref in refs}))
+    return GateResult("PASS", "REVIEW_INDEPENDENT_PASS", "Independent review is distinct and has no blocking findings.",
+                      review_refs)
