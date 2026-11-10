@@ -1,0 +1,15 @@
+{
+  "review_id": "review-<run-id>",
+  "subject_run_id": "run-primary",
+  "reviewer_run_id": "run-independent-review",
+  "reviewed_at": "2026-11-10T09:00:00+09:00",
+  "outcome": "NOT_REVIEWED",
+  "checks": [
+    {"check_id": "identity", "status": "UNKNOWN", "evidence_refs": [], "notes": "Awaiting primary evidence."},
+    {"check_id": "size_110", "status": "UNKNOWN", "evidence_refs": [], "notes": "Awaiting exact product size chart."},
+    {"check_id": "price_total", "status": "UNKNOWN", "evidence_refs": [], "notes": "Awaiting item price and shipping evidence."},
+    {"check_id": "option_stock", "status": "UNKNOWN", "evidence_refs": [], "notes": "Awaiting option-level availability."},
+    {"check_id": "evidence_integrity", "status": "UNKNOWN", "evidence_refs": [], "notes": "Awaiting evidence registry."}
+  ],
+  "findings": []
+}
