@@ -42,27 +42,27 @@ def test_size_chart_for_another_product_fails():
 
 
 def test_missing_shipping_prevents_price_pass():
-    assert evaluate_price_cap(29900, None, 40000, evidence_ref=EV).status == "UNKNOWN"
+    assert evaluate_price_cap(29900, None, 40000, mandatory_extra_cost=0, evidence_ref=EV).status == "UNKNOWN"
 
 
 def test_shipping_included_in_price_cap():
-    assert evaluate_price_cap(37900, 3000, 40000, evidence_ref=EV).status == "FAIL"
+    assert evaluate_price_cap(37900, 3000, 40000, mandatory_extra_cost=0, evidence_ref=EV).status == "FAIL"
 
 
 def test_price_exactly_at_cap_passes():
-    result = evaluate_price_cap(37900, 2100, 40000, evidence_ref=EV)
+    result = evaluate_price_cap(37900, 2100, 40000, mandatory_extra_cost=0, evidence_ref=EV)
     assert result.status == "PASS"
     assert result.details["total_price"] == 40000
 
 
 def test_price_without_provenance_does_not_pass():
-    assert evaluate_price_cap(29900, 0, 40000).status == "UNKNOWN"
+    assert evaluate_price_cap(29900, 0, 40000, mandatory_extra_cost=0).status == "UNKNOWN"
 
 
 def test_negative_price_rejected_as_invalid_input():
     import pytest
     with pytest.raises(ValueError):
-        evaluate_price_cap(-1, 0, 40000, evidence_ref=EV)
+        evaluate_price_cap(-1, 0, 40000, mandatory_extra_cost=0, evidence_ref=EV)
 
 
 def test_discount_uses_reference_price():
@@ -76,7 +76,8 @@ def test_unknown_reference_price_has_no_discount_claim():
 def test_seller_list_price_is_not_a_verified_discount_baseline():
     result = evaluate_discount_claim(
         59900, 29900, reference_basis="SELLER_LIST_PRICE",
-        reference_verified=True, reference_evidence_ref=EV
+        reference_verified=True, reference_evidence_ref=EV,
+        reference_product_variant_id=VARIANT, sale_product_variant_id=VARIANT
     )
     assert result.status == "UNKNOWN"
 
@@ -215,4 +216,27 @@ def test_passed_size_mapping_must_target_exact_advertised_label():
 
 def test_passed_review_check_requires_its_own_evidence():
     result = validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], [], [[]])
+    assert result.status == "UNKNOWN"
+
+
+def test_unknown_mandatory_costs_block_price_pass():
+    assert evaluate_price_cap(29900, 0, 40000, evidence_ref=EV).status == "UNKNOWN"
+
+
+def test_discount_baseline_must_match_same_variant():
+    result = evaluate_discount_claim(
+        59900, 29900, reference_basis="OFFICIAL_MSRP",
+        reference_verified=True, reference_evidence_ref=EV,
+        reference_product_variant_id=VARIANT,
+        sale_product_variant_id="different-season-variant"
+    )
+    assert result.status == "UNKNOWN"
+
+
+def test_discount_claim_requires_variant_identity():
+    result = evaluate_discount_claim(
+        59900, 29900, reference_basis="OFFICIAL_MSRP",
+        reference_verified=True, reference_evidence_ref=EV,
+        reference_product_variant_id=None, sale_product_variant_id=VARIANT
+    )
     assert result.status == "UNKNOWN"
