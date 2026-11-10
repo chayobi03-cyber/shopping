@@ -270,3 +270,21 @@ def test_explicit_conflict_status_blocks_evidence_coverage():
         "locator": "composition table", "normalized_value": {"wool": 70}, "unit": "percent",
     }
     assert validate_evidence_coverage(["fiber_composition"], [record], VARIANT).code == "EVIDENCE_CONFLICT"
+
+
+def test_hard_mismatch_without_evidence_remains_unknown():
+    assert evaluate_gender_match("men", "women").status == "UNKNOWN"
+    assert evaluate_condition("NEW", "USED").status == "UNKNOWN"
+    assert evaluate_identity(VARIANT, "other-variant", "VERIFIED").status == "UNKNOWN"
+    assert evaluate_size_match("110", "105", "KR").status == "UNKNOWN"
+
+
+def test_sold_out_option_requires_evidence_before_failure():
+    assert evaluate_availability(
+        "SOLD_OUT", "option_selection", {"size": "110", "color": "black"},
+        {"size": "110", "color": "black"}, NOW, 7200, now=NOW
+    ).status == "UNKNOWN"
+    assert evaluate_availability(
+        "SOLD_OUT", "option_selection", {"size": "110", "color": "black"},
+        {"size": "110", "color": "black"}, NOW, 7200, now=NOW, evidence_ref=EV
+    ).status == "FAIL"
