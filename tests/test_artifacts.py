@@ -125,3 +125,8 @@ def test_markdown_report_is_created_immutably(tmp_path):
     assert path.read_text(encoding="utf-8") == report
     with pytest.raises(FileExistsError):
         write_markdown_report(tmp_path, "reports/pilot.md", report)
+
+
+def test_new_run_manifest_must_start_running():
+    with pytest.raises(ValueError):
+        create_run_manifest("req-001", "feature/test", status="COMPLETED")
