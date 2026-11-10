@@ -115,3 +115,18 @@ def test_run_manifest_schema_accepts_reproducible_run():
         "notes": ["No products are approved yet."]
     }
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(sample)
+
+
+def test_review_schema_rejects_pass_check_without_evidence():
+    schema = json.loads((SCHEMA_DIR / "review.schema.json").read_text(encoding="utf-8"))
+    sample = {
+        "review_id": "review-002",
+        "subject_run_id": "run-primary",
+        "reviewer_run_id": "run-review",
+        "reviewed_at": "2026-11-10T09:00:00+09:00",
+        "outcome": "PASS",
+        "checks": [{"check_id": "identity", "status": "PASS", "evidence_refs": []}],
+        "findings": []
+    }
+    errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(sample))
+    assert errors
