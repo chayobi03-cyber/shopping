@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chayobi03-cyber/shopping/schemas/availability.schema.json",
+  "title": "Option Availability Observation",
+  "type": "object",
+  "required": ["observation_id", "offer_id", "selected_options", "availability", "verification_method", "checked_at", "ttl_seconds"],
+  "properties": {
+    "observation_id": {"type": "string"},
+    "offer_id": {"type": "string"},
+    "selected_options": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}},
+    "availability": {"enum": ["AVAILABLE", "LOW_STOCK", "SOLD_OUT", "OPTION_MISSING", "PREORDER", "BACKORDER", "UNVERIFIED", "UNKNOWN"]},
+    "verification_method": {"enum": ["option_selection", "cart_step", "seller_api", "seller_confirmation", "listing_only"]},
+    "checked_at": {"type": "string", "format": "date-time"},
+    "ttl_seconds": {"type": "integer", "minimum": 0},
+    "evidence_id": {"type": ["string", "null"]},
+    "notes": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}
