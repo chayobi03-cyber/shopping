@@ -85,7 +85,8 @@ def test_seller_list_price_is_not_a_verified_discount_baseline():
 def test_official_msrp_with_evidence_can_support_discount_claim():
     result = evaluate_discount_claim(
         59900, 29900, reference_basis="OFFICIAL_MSRP",
-        reference_verified=True, reference_evidence_ref=EV
+        reference_verified=True, reference_evidence_ref=EV,
+        reference_product_variant_id=VARIANT, sale_product_variant_id=VARIANT
     )
     assert result.status == "PASS"
     assert result.details["discount_percent"] == 50.1
