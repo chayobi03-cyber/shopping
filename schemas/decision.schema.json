@@ -8,11 +8,42 @@
     "decision_id": {"type": "string", "minLength": 1},
     "product_variant_id": {"type": "string", "minLength": 1},
     "as_of": {"type": "string", "format": "date-time"},
-    "hard_gates": {"type": "object", "additionalProperties": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]}},
+    "hard_gates": {
+      "type": "object",
+      "required": ["gender", "size_110", "new", "price_cap", "identity", "stock"],
+      "properties": {
+        "gender": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "size_110": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "new": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "price_cap": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "identity": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "stock": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]}
+      },
+      "additionalProperties": false
+    },
     "decision": {"enum": ["BUY", "WATCH", "REJECT", "DATA_NOT_READY", "BLOCKED"]},
-    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
     "review_status": {"enum": ["PASS", "PASS_WITH_WARNINGS", "FAIL", "NOT_REVIEWED"]},
     "notes": {"type": "array", "items": {"type": "string"}}
   },
+  "allOf": [
+    {
+      "if": {"properties": {"decision": {"const": "BUY"}}},
+      "then": {
+        "properties": {
+          "evidence_refs": {"minItems": 1},
+          "review_status": {"enum": ["PASS", "PASS_WITH_WARNINGS"]},
+          "hard_gates": {"properties": {
+            "gender": {"const": "PASS"},
+            "size_110": {"const": "PASS"},
+            "new": {"const": "PASS"},
+            "price_cap": {"const": "PASS"},
+            "identity": {"const": "PASS"},
+            "stock": {"const": "PASS"}
+          }}
+        }
+      }
+    }
+  ],
   "additionalProperties": false
 }
