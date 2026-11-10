@@ -3,6 +3,8 @@ from shopping.validators import (
     evaluate_discount_claim,
     evaluate_availability,
     evaluate_freshness,
+    evaluate_gender_match,
+    evaluate_condition,
     evaluate_identity,
     evaluate_price_cap,
     evaluate_size_match,
@@ -158,3 +160,12 @@ def test_evidence_must_match_variant_and_field():
 
 def test_explicit_wrong_korean_size_fails():
     assert evaluate_size_match("110", "105", "KR", evidence_ref=EV).status == "FAIL"
+
+
+def test_gender_and_condition_require_matching_evidence():
+    assert evaluate_gender_match("men", "men", evidence_ref=EV).status == "PASS"
+    assert evaluate_gender_match("men", "women", evidence_ref=EV).status == "FAIL"
+    assert evaluate_gender_match("men", "men").status == "UNKNOWN"
+    assert evaluate_condition("NEW", "NEW", evidence_ref=EV).status == "PASS"
+    assert evaluate_condition("NEW", "USED", evidence_ref=EV).status == "FAIL"
+    assert evaluate_condition("NEW", "NEW").status == "UNKNOWN"
