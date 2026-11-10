@@ -45,6 +45,11 @@ def evaluate_freshness(
     allowed_clock_skew_seconds: int = 60,
 ) -> GateResult:
     """Check observation freshness; malformed/naive/future times fail closed."""
+    if (
+        not isinstance(ttl_seconds, int) or isinstance(ttl_seconds, bool)
+        or not isinstance(allowed_clock_skew_seconds, int) or isinstance(allowed_clock_skew_seconds, bool)
+    ):
+        raise TypeError("TTL and allowed clock skew must be integer seconds.")
     if ttl_seconds < 0 or allowed_clock_skew_seconds < 0:
         raise ValueError("TTL and allowed clock skew must be non-negative")
     observed = _parse_aware_datetime(observed_at)
@@ -67,8 +72,8 @@ def evaluate_gender_match(
     *,
     evidence_ref: str | None = None,
 ) -> GateResult:
-    if not requested_gender or not observed_gender:
-        return GateResult("UNKNOWN", "GENDER_MISSING", "Requested or observed gender is missing.")
+    if not requested_gender or not observed_gender or observed_gender == "unknown":
+        return GateResult("UNKNOWN", "GENDER_MISSING", "Requested or observed gender is missing or unknown.")
     if observed_gender == "unisex" and requested_gender in {"men", "women", "unisex"}:
         if not evidence_ref:
             return GateResult("UNKNOWN", "GENDER_EVIDENCE_MISSING", "Gender classification has no evidence reference.")
@@ -86,8 +91,8 @@ def evaluate_condition(
     *,
     evidence_ref: str | None = None,
 ) -> GateResult:
-    if not requested_condition or not observed_condition:
-        return GateResult("UNKNOWN", "CONDITION_MISSING", "Requested or observed product condition is missing.")
+    if not requested_condition or not observed_condition or observed_condition == "UNKNOWN":
+        return GateResult("UNKNOWN", "CONDITION_MISSING", "Requested or observed product condition is missing or unknown.")
     if observed_condition != requested_condition:
         return GateResult("FAIL", "CONDITION_MISMATCH", "Product condition does not match the request.")
     if not evidence_ref:
