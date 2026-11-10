@@ -85,9 +85,13 @@ def evaluate_candidate(
         message = getattr(result, "message", "")
         if message:
             reasons.append(f"{name}: {message}")
-    reviewer_status = getattr(reviewer_result, "status", UNKNOWN)
-    reviewer_code = getattr(reviewer_result, "code", "")
-    reviewer_status = PASS if reviewer_status == PASS and reviewer_code == "REVIEW_INDEPENDENT_PASS" else UNKNOWN
+    reviewer_valid = (
+        isinstance(reviewer_result, GateResult)
+        and reviewer_result.status == PASS
+        and reviewer_result.code == "REVIEW_INDEPENDENT_PASS"
+        and bool(reviewer_result.evidence_refs)
+    )
+    reviewer_status = PASS if reviewer_valid else UNKNOWN
     if isinstance(reviewer_result, GateResult):
         refs.update(reviewer_result.evidence_refs)
     decision = evaluate_decision(gates, reviewer_result, sorted(refs))
