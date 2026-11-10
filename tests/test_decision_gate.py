@@ -9,7 +9,7 @@ STALE = "STALE"
 
 
 def clean_review():
-    return validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], [])
+    return validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], [], [["review-ev-001"]])
 
 
 def base_gates():
