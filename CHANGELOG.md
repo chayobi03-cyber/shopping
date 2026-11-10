@@ -17,3 +17,12 @@
 - Added gender, condition, product identity, and independent-review integrity gates.
 - Added structured run-manifest and review schemas, CSV templates, freshness policy, specialist agent prompts, and Spec Kit SDD scaffolding.
 - Expanded pytest and JSON Schema contract tests; latest execution evidence remains pending.
+
+
+### Phase 2 additional hardening — 2026-11-10
+- Added evidence-bearing typed hard-gate objects; plain PASS strings and untyped values cannot authorize BUY.
+- Added explicit price freshness gate, mandatory-cost unknown state, and same-variant discount baseline verification.
+- Added configured freshness-policy evaluation including clock-skew tolerance.
+- Added manifest finalization, schema-validated immutable JSON output, append-only CSV observation writer, and immutable Markdown report writer.
+- Required every PASS check in independent review records to include evidence references.
+- Aligned README and architecture documentation with automatic artifact approval and Git + CSV/JSON persistence.
