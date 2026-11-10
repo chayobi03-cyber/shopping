@@ -28,7 +28,7 @@ def test_xxl_is_not_assumed_to_be_110():
 
 def test_verified_product_specific_size_chart_passes():
     mapping = {"normalized_size": "110", "verification_status": "VERIFIED",
-               "product_variant_id": VARIANT, "evidence_ref": EV}
+               "product_variant_id": VARIANT, "advertised_size": "XXL", "evidence_ref": EV}
     result = evaluate_size_match("110", "XXL", "INTL",
                                  expected_product_variant_id=VARIANT, chart_mapping=mapping)
     assert result.status == "PASS"
@@ -36,7 +36,7 @@ def test_verified_product_specific_size_chart_passes():
 
 def test_size_chart_for_another_product_fails():
     mapping = {"normalized_size": "110", "verification_status": "VERIFIED",
-               "product_variant_id": "another-product", "evidence_ref": EV}
+               "product_variant_id": "another-product", "advertised_size": "XXL", "evidence_ref": EV}
     assert evaluate_size_match("110", "XXL", "INTL",
                                expected_product_variant_id=VARIANT, chart_mapping=mapping).status == "FAIL"
 
@@ -173,23 +173,23 @@ def test_gender_and_condition_require_matching_evidence():
 
 
 def test_independent_review_must_use_distinct_run():
-    result = validate_independent_review("run-primary", "run-primary", "PASS", ["PASS"], [])
+    result = validate_independent_review("run-primary", "run-primary", "PASS", ["PASS"], [], [[EV]])
     assert result.status == "FAIL"
 
 
 def test_review_cannot_pass_with_high_severity_finding():
-    result = validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], ["HIGH"])
+    result = validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], ["HIGH"], [[EV]])
     assert result.status == "FAIL"
 
 
 def test_incomplete_review_does_not_pass():
-    result = validate_independent_review("run-primary", "run-review", "PASS", ["UNKNOWN"], [])
+    result = validate_independent_review("run-primary", "run-review", "PASS", ["UNKNOWN"], [], [[]])
     assert result.status == "UNKNOWN"
 
 
 def test_independent_review_passes_when_clean():
     result = validate_independent_review(
-        "run-primary", "run-review", "PASS_WITH_WARNINGS", ["PASS", "NOT_APPLICABLE"], ["LOW"]
+        "run-primary", "run-review", "PASS_WITH_WARNINGS", ["PASS", "NOT_APPLICABLE"], ["LOW"], [[EV], []]
     )
     assert result.status == "PASS"
 
@@ -203,3 +203,16 @@ def test_freshness_rejects_boolean_ttl():
     import pytest
     with pytest.raises(TypeError):
         evaluate_freshness(NOW, True, now=NOW)
+
+
+def test_passed_size_mapping_must_target_exact_advertised_label():
+    mapping = {"normalized_size": "110", "verification_status": "VERIFIED",
+               "product_variant_id": VARIANT, "advertised_size": "XL", "evidence_ref": EV}
+    result = evaluate_size_match("110", "XXL", "INTL",
+                                 expected_product_variant_id=VARIANT, chart_mapping=mapping)
+    assert result.status == "FAIL"
+
+
+def test_passed_review_check_requires_its_own_evidence():
+    result = validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], [], [[]])
+    assert result.status == "UNKNOWN"
