@@ -105,3 +105,15 @@ def test_plain_string_gate_cannot_authorize_buy():
     results = base_results()
     results["gender"] = "PASS"
     assert evaluate_decision(results, clean_review()) == "DATA_NOT_READY"
+
+
+def test_hard_failure_without_evidence_does_not_reject_as_fact():
+    results = base_results()
+    results["size_110"] = GateResult(FAIL, "SIZE_MISMATCH", "unreferenced mismatch")
+    assert evaluate_decision(results, clean_review()) == "DATA_NOT_READY"
+
+
+def test_evidence_backed_hard_failure_rejects():
+    results = base_results()
+    results["size_110"] = GateResult(FAIL, "SIZE_MISMATCH", "verified mismatch", ("ev-size-mismatch",))
+    assert evaluate_decision(results, clean_review()) == "REJECT"
