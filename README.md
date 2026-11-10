@@ -20,6 +20,15 @@
 4. [STOCK_MONITORING.md](STOCK_MONITORING.md) — 옵션별 구매 가능성 확인
 5. [EVIDENCE_SCHEMA.md](EVIDENCE_SCHEMA.md) — 제품·사양·출처·재고 데이터 구조
 
+### System engineering and data operations
+
+13. [AGENTS.md](AGENTS.md) — Superpowers + Spec Kit 작업 계약
+14. [prompts/META_PROMPT.md](prompts/META_PROMPT.md) — 통합 오케스트레이터 메타 프롬프트
+15. [spec-kit/constitution/CONSTITUTION.md](spec-kit/constitution/CONSTITUTION.md) — 프로젝트 불변 원칙
+16. [spec-kit/architecture/ARCHITECTURE.md](spec-kit/architecture/ARCHITECTURE.md) — 하이브리드 에이전트 아키텍처
+17. [spec-kit/features/001-apparel-value-hunt/spec.md](spec-kit/features/001-apparel-value-hunt/spec.md) — 남성 의류 파일럿 명세
+18. [reports/PHASE2_STATUS_2026-11-10.md](reports/PHASE2_STATUS_2026-11-10.md) — 구현 상태 및 미완료 항목
+
 ### System and data operations
 
 6. [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) — 전체 시스템 구조와 에이전트/서비스 책임
@@ -32,7 +41,7 @@
 
 ## End-to-end workflow
 
-Requirement → Product Identity → Source Discovery → Evidence Collection → Normalization → Verification → Quality Evaluation → Comparison → Human Approval → Report
+Requirement → Specify/Plan/Tasks → Parallel Specialist Research → Evidence Collection → Normalization → Deterministic Verification → Independent Review → Quality Gates → Automatic Artifact Approval → Git/CSV/JSON Release
 
 ## 기본 원칙
 
@@ -44,7 +53,8 @@ Requirement → Product Identity → Source Discovery → Evidence Collection �
 - 가격·재고는 변동 정보이므로 판매처·옵션·확인 시각을 함께 기록한다.
 - 과거 품절은 영구 제외 사유가 아니다. 재검색 시 후보를 다시 확인한다.
 - 원본 evidence와 정규화/판정 결과를 분리해 이력을 보존한다.
-- 구매·결제 등 외부 효과가 있는 행동은 사용자의 명시적 승인 없이 실행하지 않는다.
+- 산출물은 모든 자동 검증 및 독립 리뷰 게이트를 통과한 경우에만 자동 승인한다.
+- 자동 산출물 승인은 구매·결제·계정 변경·개인정보 전송을 승인하지 않는다. 외부 거래는 별도의 명시적 사용자 승인이 필요하다.
 
 ## Common status vocabulary
 
@@ -60,16 +70,17 @@ Requirement → Product Identity → Source Discovery → Evidence Collection �
 | AVAILABLE | 특정 시점·판매처·옵션에서 구매 가능 확인 |
 | UNAVAILABLE | 특정 시점·판매처·옵션에서 구매 불가 확인 |
 
-## Initial implementation direction
+## Current MVP implementation direction
 
-- Python 기반 모듈형 source adapters
-- PostgreSQL 기반 제품·변형·근거·오퍼 메타데이터
-- 파일/객체 저장소 기반 raw evidence 보존
-- Pydantic 또는 JSON Schema 기반 데이터 계약 검증
-- pytest 기반 parser/adapter regression tests
-- Markdown/CSV/JSON 기반 초기 결과 배포
+- Python 기반 모듈형 검증 엔진
+- Git을 버전관리·감사 추적의 기준으로 사용
+- CSV 기반 append-only 관측 원장
+- JSON 기반 요청·제품·근거·오퍼·재고·판정 스냅샷
+- JSON Schema 기반 데이터 계약 검증
+- pytest + GitHub Actions 품질 게이트
+- Markdown/CSV/JSON 결과물 생성 및 Git 릴리스
 
-대규모 orchestration, 분산 처리, 상용 PIM은 실제 규모와 운영 요건이 확인된 뒤 도입한다.
+PostgreSQL, 객체 스토리지, 분산 orchestration은 데이터량과 동시성 요구가 실측된 뒤 별도 변경 명세로 도입한다.
 
 ## Scope
 
