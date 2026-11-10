@@ -94,6 +94,8 @@ def evaluate_size_match(
     """
     if not requested_size or not advertised_size:
         return GateResult("UNKNOWN", "SIZE_MISSING", "Requested or advertised size is missing.")
+    if size_system == "KR" and advertised_size.strip().upper() != requested_size.strip().upper():
+        return GateResult("FAIL", "SIZE_MISMATCH", "Advertised Korean size differs from the requested size.")
     if size_system == "KR" and advertised_size.strip().upper() == requested_size.strip().upper():
         if not evidence_ref:
             return GateResult("UNKNOWN", "SIZE_EVIDENCE_MISSING", "Exact size option has no evidence reference.")
@@ -225,6 +227,8 @@ def validate_evidence_coverage(
     product_variant_id: str,
 ) -> GateResult:
     """Ensure each critical field has identity-matched verified provenance."""
+    if not required_field_keys:
+        raise ValueError("At least one required evidence field must be specified.")
     missing: list[str] = []
     refs: list[str] = []
     for field_key in required_field_keys:
