@@ -1,7 +1,9 @@
 import csv
 import json
+from pathlib import Path
 
 import pytest
+from jsonschema.exceptions import ValidationError
 
 from shopping.artifacts import (
     append_csv_observation,
@@ -12,8 +14,7 @@ from shopping.artifacts import (
 )
 
 
-ROOT = __file__
-SCHEMAS = __import__("pathlib").Path(__file__).parents[1] / "schemas"
+SCHEMAS = Path(__file__).parents[1] / "schemas"
 
 
 def valid_decision():
@@ -54,7 +55,7 @@ def test_write_immutable_json_validates_and_never_overwrites(tmp_path):
 def test_write_immutable_json_rejects_invalid_snapshot(tmp_path):
     sample = valid_decision()
     sample["hard_gates"]["size_110"] = "UNKNOWN"
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         write_immutable_json(tmp_path, "decision.json", sample, SCHEMAS / "decision.schema.json")
 
 
