@@ -289,3 +289,36 @@ def validate_evidence_coverage(
     return GateResult("PASS", "EVIDENCE_COVERAGE_COMPLETE",
                       "All required fields have verified, product-scoped evidence.",
                       tuple(sorted(set(refs))))
+
+
+def validate_independent_review(
+    subject_run_id: str | None,
+    reviewer_run_id: str | None,
+    outcome: str,
+    check_statuses: Sequence[str],
+    finding_severities: Sequence[str],
+) -> GateResult:
+    """Validate reviewer independence and prevent a positive outcome over blocking findings."""
+    if not subject_run_id or not reviewer_run_id:
+        return GateResult("UNKNOWN", "REVIEW_ID_MISSING", "Subject and reviewer run IDs are required.")
+    if subject_run_id == reviewer_run_id:
+        return GateResult("FAIL", "REVIEW_NOT_INDEPENDENT", "Reviewer must use a distinct run from the subject.")
+    if not check_statuses:
+        return GateResult("UNKNOWN", "REVIEW_CHECKS_MISSING", "Independent review has no recorded checks.")
+    allowed_checks = {"PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"}
+    if any(status not in allowed_checks for status in check_statuses):
+        return GateResult("UNKNOWN", "REVIEW_CHECK_STATUS_INVALID", "Review contains an unrecognized check status.")
+    blocking = {"CRITICAL", "HIGH"}
+    if outcome in {"PASS", "PASS_WITH_WARNINGS"} and (
+        "FAIL" in check_statuses or any(severity in blocking for severity in finding_severities)
+    ):
+        return GateResult("FAIL", "REVIEW_OUTCOME_CONTRADICTED", "Positive review outcome conflicts with blocking findings.")
+    if outcome not in {"PASS", "PASS_WITH_WARNINGS", "FAIL", "NOT_REVIEWED"}:
+        return GateResult("UNKNOWN", "REVIEW_OUTCOME_INVALID", "Review outcome is not recognized.")
+    if outcome == "FAIL" or "FAIL" in check_statuses:
+        return GateResult("FAIL", "REVIEW_FAILED", "Independent review identified a failed check.")
+    if outcome == "NOT_REVIEWED" or "UNKNOWN" in check_statuses:
+        return GateResult("UNKNOWN", "REVIEW_INCOMPLETE", "Independent review remains incomplete.")
+    if any(severity not in {"CRITICAL", "HIGH", "MEDIUM", "LOW"} for severity in finding_severities):
+        return GateResult("UNKNOWN", "REVIEW_FINDING_INVALID", "Review contains an invalid finding severity.")
+    return GateResult("PASS", "REVIEW_INDEPENDENT_PASS", "Independent review is distinct and has no blocking findings.")
