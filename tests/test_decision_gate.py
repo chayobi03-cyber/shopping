@@ -1,6 +1,6 @@
 """Tests exercise the production deterministic decision gate."""
 from shopping.decision import evaluate_candidate, evaluate_decision
-from shopping.validators import GateResult
+from shopping.validators import GateResult, validate_independent_review
 
 PASS = "PASS"
 FAIL = "FAIL"
@@ -10,7 +10,7 @@ STALE = "STALE"
 
 def base_gates():
     return {"gender": PASS, "size_110": PASS, "new": PASS,
-            "price_cap": PASS, "identity": PASS, "stock": PASS, "evidence_coverage": PASS}
+            "price_cap": PASS, "price_freshness": PASS, "identity": PASS, "stock": PASS, "evidence_coverage": PASS}
 
 
 def test_all_gates_and_review_pass():
@@ -62,9 +62,9 @@ def test_unrecognized_mandatory_gate_state_fails_closed():
 def test_candidate_composition_requires_evidence_coverage_and_review():
     results = {
         name: GateResult(PASS, "OK", "passed", ("ev-001",))
-        for name in ["gender", "size_110", "new", "price_cap", "identity", "stock", "evidence_coverage"]
+        for name in ["gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock", "evidence_coverage"]
     }
-    decision = evaluate_candidate(results, GateResult(PASS, "REVIEW_OK", "independent review passed"))
+    decision = evaluate_candidate(results, validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], []))
     assert decision.decision == "BUY"
     assert decision.hard_gates["evidence_coverage"] == PASS
 
@@ -72,7 +72,7 @@ def test_candidate_composition_requires_evidence_coverage_and_review():
 def test_candidate_composition_missing_evidence_coverage_is_not_ready():
     results = {
         name: GateResult(PASS, "OK", "passed", ("ev-001",))
-        for name in ["gender", "size_110", "new", "price_cap", "identity", "stock"]
+        for name in ["gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock"]
     }
     decision = evaluate_candidate(results, GateResult(PASS, "REVIEW_OK", "independent review passed"))
     assert decision.decision == "DATA_NOT_READY"
@@ -84,4 +84,14 @@ def test_candidate_composition_failed_review_blocks_buy():
         for name in ["gender", "size_110", "new", "price_cap", "identity", "stock", "evidence_coverage"]
     }
     decision = evaluate_candidate(results, GateResult("UNKNOWN", "REVIEW_PENDING", "review pending"))
+    assert decision.decision == "DATA_NOT_READY"
+
+
+def test_unvalidated_positive_review_cannot_authorize_buy():
+    results = {
+        name: GateResult(PASS, "OK", "passed", ("ev-001",))
+        for name in ["gender", "size_110", "new", "price_cap", "price_freshness",
+                     "identity", "stock", "evidence_coverage"]
+    }
+    decision = evaluate_candidate(results, GateResult(PASS, "ARBITRARY_PASS", "not independently validated"))
     assert decision.decision == "DATA_NOT_READY"
