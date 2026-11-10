@@ -1,0 +1,1 @@
+"""Shopping Intelligence deterministic core."""

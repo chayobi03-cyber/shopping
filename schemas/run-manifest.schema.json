@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chayobi03-cyber/shopping/schemas/run-manifest.schema.json",
+  "title": "Shopping Research Run Manifest",
+  "type": "object",
+  "required": ["run_id", "request_id", "started_at", "status", "branch", "agents", "artifact_refs"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "request_id": {"type": "string"},
+    "started_at": {"type": "string", "format": "date-time"},
+    "completed_at": {"type": ["string", "null"], "format": "date-time"},
+    "status": {"enum": ["RUNNING", "COMPLETED", "FAILED", "DATA_NOT_READY", "BLOCKED"]},
+    "branch": {"type": "string"},
+    "commit_sha": {"type": ["string", "null"]},
+    "agents": {"type": "array", "items": {
+      "type": "object",
+      "required": ["agent_id", "task_id", "status"],
+      "properties": {
+        "agent_id": {"type": "string"},
+        "task_id": {"type": "string"},
+        "status": {"enum": ["COMPLETED", "FAILED", "BLOCKED", "DATA_NOT_READY"]},
+        "output_refs": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    }},
+    "artifact_refs": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "decision_refs": {"type": "array", "items": {"type": "string"}},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

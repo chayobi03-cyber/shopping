@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chayobi03-cyber/shopping/schemas/decision.schema.json",
+  "title": "Shopping Decision Snapshot",
+  "type": "object",
+  "required": ["decision_id", "product_variant_id", "as_of", "hard_gates", "decision", "evidence_refs", "review_status"],
+  "properties": {
+    "decision_id": {"type": "string", "minLength": 1},
+    "product_variant_id": {"type": "string", "minLength": 1},
+    "as_of": {"type": "string", "format": "date-time"},
+    "hard_gates": {
+      "type": "object",
+      "required": ["gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock", "evidence_coverage"],
+      "properties": {
+        "gender": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "size_110": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "new": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "price_cap": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "price_freshness": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "identity": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "stock": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "evidence_coverage": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]}
+      },
+      "additionalProperties": false
+    },
+    "decision": {"enum": ["BUY", "WATCH", "REJECT", "DATA_NOT_READY", "BLOCKED"]},
+    "evidence_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "review_status": {"enum": ["PASS", "PASS_WITH_WARNINGS", "FAIL", "NOT_REVIEWED"]},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"decision": {"const": "BUY"}}},
+      "then": {
+        "properties": {
+          "evidence_refs": {"minItems": 1},
+          "review_status": {"enum": ["PASS", "PASS_WITH_WARNINGS"]},
+          "hard_gates": {"properties": {
+            "gender": {"const": "PASS"},
+            "size_110": {"const": "PASS"},
+            "new": {"const": "PASS"},
+            "price_cap": {"const": "PASS"},
+            "price_freshness": {"const": "PASS"},
+            "identity": {"const": "PASS"},
+            "stock": {"const": "PASS"},
+            "evidence_coverage": {"const": "PASS"}
+          }}
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

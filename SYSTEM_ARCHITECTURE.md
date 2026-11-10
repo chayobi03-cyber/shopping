@@ -10,7 +10,7 @@
 4. Immutable raw evidence: 원본 응답/문서와 수집 메타데이터는 정규화 결과와 분리해 보존한다.
 5. Time-aware data: 사양, 가격, 재고, 리뷰는 서로 다른 변경 주기와 유효기간을 가진다.
 6. Fail visibly: 불확실하거나 상충하는 데이터는 UNKNOWN, CONFLICT, DATA_NOT_READY로 명시한다.
-7. Human approval: 구매·결제·개인정보 전송 등 외부 효과가 있는 행동은 별도 승인 없이는 실행하지 않는다.
+7. Automatic artifact approval: 버전관리 산출물은 결정론적 테스트와 독립 리뷰를 포함한 모든 품질 게이트 통과 시 자동 승인한다. 구매·결제·계정 변경·개인정보 전송은 별도 명시적 사용자 승인 없이는 실행하지 않는다.
 
 ## 2. 논리 아키텍처
 
@@ -26,8 +26,12 @@ flowchart LR
   V --> Q[Data Quality Evaluation]
   Q --> M[(Curated Product Store)]
   M --> S[Comparison and Decision Service]
-  S --> H[Human Review / Approval]
-  H --> O[Report / API / Export]
+  S --> IR[Independent Reviewer]
+  IR --> G{Deterministic Quality Gates}
+  G -->|PASS| AA[Automatic Artifact Approval]
+  G -->|FAIL| QH[Quarantine / DATA_NOT_READY]
+  AA --> O[Git + CSV/JSON Report / Export]
+  O -. transaction only .-> TA[Explicit User Transaction Approval]
   C --> X[Pipeline Observability]
   N --> X
   V --> X
@@ -46,7 +50,10 @@ flowchart LR
 | Verification | 제품 일치, 필드 근거, 교차 출처 충돌 검사 | VerificationResult |
 | Quality | 7대 데이터 품질 지표 및 신선도 평가 | QualityReport |
 | Decision | 필수 조건 판정, 비교, 추천 후보 구성 | DecisionSnapshot |
-| Delivery | 보고서, 검색, 비교 화면, 내보내기 | ResearchReport |
+| Independent Review | 원본 증거 재확인, 반례 탐색, 게이트 재계산 | ReviewRecord |
+| Artifact Release | 모든 품질 게이트 통과 시 산출물 자동 승인 | ReleaseRecord |
+| Delivery | Git, CSV/JSON, Markdown 보고서 및 내보내기 | ResearchReport |
+| Transaction Boundary | 실제 구매·결제 등 외부 효과의 별도 사용자 승인 | TransactionAuthorization |
 | Governance | 권한, 보존, 개인정보, 저작권, 이용약관 준수 | AuditRecord |
 
 ## 4. 에이전트/서비스 계약
@@ -64,7 +71,9 @@ flowchart LR
 | StockVerificationAgent | Offer + Variant | 사이즈/색상별 구매 가능 상태 검증 | 상품 페이지 존재만으로 재고 확정 |
 | QualityEvaluator | Curated data | 7대 품질 차원 측정 | 낮은 점수를 평균으로 숨김 |
 | ComparisonDecisionService | Requirement + Verified data | 필수 조건 판정 및 근거 기반 비교 | 미확인 필수 항목을 PASS 처리 |
-| HumanApprovalGate | DecisionSnapshot | 구매 등 외부 행동 승인 관리 | 사전 승인 없는 구매/결제 |
+| IndependentReviewer | DecisionSnapshot + raw evidence | 주 조사 경로와 분리해 원본 근거 재검증 | 요약문만 보고 승인 |
+| ArtifactReleaseController | QualityReport + ReviewRecord + CI result | 모든 릴리스 게이트 통과 시 산출물 자동 승인 | 실패/미실행 테스트를 통과 처리 |
+| TransactionApprovalBoundary | 외부 거래 요청 | 별도 사용자 승인 여부 확인 | 산출물 자동 승인을 거래 승인으로 해석 |
 
 ## 5. 데이터 저장 계층
 
@@ -122,15 +131,17 @@ GTIN은 존재할 때 유용하지만 모든 제품에 반드시 존재하지는
 초기 버전은 단일 애플리케이션과 모듈형 어댑터로 시작한다.
 
 - Runtime: Python
-- Schema/validation: Pydantic 또는 JSON Schema
-- Database: PostgreSQL
-- Raw artifacts: 로컬 파일 저장소에서 시작하고 필요할 때 객체 스토리지로 확장
+- Schema/validation: JSON Schema
+- Versioning/audit: Git
+- Structured persistence: CSV observation ledgers + JSON snapshots
+- Raw artifacts: 사용 권한이 있는 근거의 URL, locator, retrieval metadata, permitted hash/excerpt only; 전체 원문 저장은 별도 권한 검토
 - Collection: 공식 API/피드 우선, 허용된 정적 페이지는 HTTP 파서, 동적 페이지는 필요성과 허용 여부를 확인한 뒤 브라우저 자동화
 - Scheduling: 낮은 작업량은 cron 또는 단순 workflow부터 시작
 - Testing: pytest + fixture 기반 parser regression test
 - Delivery: Markdown/CSV/JSON 리포트와 GitHub 변경 이력
+- Database: MVP에서는 사용하지 않음; 필요성이 실측되면 별도 ADR로 SQLite/PostgreSQL 검토
 
-Airflow, Spark, Kafka, 상용 PIM 등은 데이터량·동시성·운영 인력이 실제로 요구할 때 도입한다.
+Airflow, Spark, Kafka, 상용 PIM, PostgreSQL 등은 데이터량·동시성·운영 인력이 실제로 요구할 때 도입한다.
 
 ## 9. 필수 운영 통제
 

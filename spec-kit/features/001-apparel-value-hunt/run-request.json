@@ -1,0 +1,12 @@
+{
+  "request_id": "REQ-2026-11-10-MENS-KNITWEAR",
+  "category": ["cardigan", "zip_hoodie", "knit_zip_up"],
+  "gender": "men",
+  "condition": "NEW",
+  "currency": "KRW",
+  "max_total_price": 40000,
+  "required_options": {"size": "110"},
+  "preferred_brands": ["TOPTEN", "POLHAM", "PROJECT M", "GIORDANO", "OLZEN", "BEANPOLE", "HAZZYS", "LACOSTE", "TOMMY HILFIGER"],
+  "preferences": ["high_material_quality", "credible_discount", "good_design", "established_brand", "verified_stock"],
+  "created_at": "2026-11-10T09:53:00+09:00"
+}

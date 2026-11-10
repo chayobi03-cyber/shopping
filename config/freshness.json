@@ -1,0 +1,11 @@
+{
+  "policy_version": "1.0.0",
+  "description": "Initial configurable freshness defaults. Not availability guarantees.",
+  "ttl_seconds": {
+    "price": 86400,
+    "availability": 7200,
+    "review_aggregate": 2592000,
+    "official_product_specification": 31536000
+  },
+  "clock_skew_tolerance_seconds": 60
+}
