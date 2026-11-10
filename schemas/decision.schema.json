@@ -10,12 +10,13 @@
     "as_of": {"type": "string", "format": "date-time"},
     "hard_gates": {
       "type": "object",
-      "required": ["gender", "size_110", "new", "price_cap", "identity", "stock", "evidence_coverage"],
+      "required": ["gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock", "evidence_coverage"],
       "properties": {
         "gender": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
         "size_110": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
         "new": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
         "price_cap": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
+        "price_freshness": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
         "identity": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
         "stock": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]},
         "evidence_coverage": {"enum": ["PASS", "FAIL", "UNKNOWN", "STALE"]}
@@ -39,6 +40,7 @@
             "size_110": {"const": "PASS"},
             "new": {"const": "PASS"},
             "price_cap": {"const": "PASS"},
+            "price_freshness": {"const": "PASS"},
             "identity": {"const": "PASS"},
             "stock": {"const": "PASS"},
             "evidence_coverage": {"const": "PASS"}
