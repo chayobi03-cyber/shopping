@@ -32,8 +32,8 @@ def create_run_manifest(
     """Create a schema-compatible run manifest; callers finalize status/time later."""
     if not request_id or not branch:
         raise ValueError("request_id and branch are required")
-    if status not in {"RUNNING", "COMPLETED", "FAILED", "DATA_NOT_READY", "BLOCKED"}:
-        raise ValueError("Invalid run status")
+    if status != "RUNNING":
+        raise ValueError("New run manifests must start in RUNNING status; use finalize_run_manifest for terminal states.")
     return {
         "run_id": run_id or f"run-{uuid4().hex}",
         "request_id": request_id,
