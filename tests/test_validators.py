@@ -154,3 +154,7 @@ def test_evidence_must_match_variant_and_field():
     assert validate_evidence_coverage(["fiber_composition"], records, VARIANT).status == "PASS"
     assert validate_evidence_coverage(["size_chart"], records, VARIANT).status == "UNKNOWN"
     assert validate_evidence_coverage(["fiber_composition"], records, "wrong-product").status == "UNKNOWN"
+
+
+def test_explicit_wrong_korean_size_fails():
+    assert evaluate_size_match("110", "105", "KR", evidence_ref=EV).status == "FAIL"
