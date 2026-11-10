@@ -39,8 +39,5 @@
       }
     }
   },
-  "not": {
-    "properties": {"subject_run_id": {"const": {"$data": "1/reviewer_run_id"}}}
-  },
   "additionalProperties": false
 }
