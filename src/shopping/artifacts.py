@@ -50,6 +50,33 @@ def create_run_manifest(
     }
 
 
+def finalize_run_manifest(
+    manifest: Mapping[str, Any],
+    *,
+    status: str,
+    artifact_refs: Sequence[str] | None = None,
+    evidence_refs: Sequence[str] | None = None,
+    decision_refs: Sequence[str] | None = None,
+    notes: Sequence[str] | None = None,
+) -> dict[str, Any]:
+    """Return a completed manifest snapshot without mutating the caller's object."""
+    terminal_statuses = {"COMPLETED", "FAILED", "DATA_NOT_READY", "BLOCKED"}
+    if status not in terminal_statuses:
+        raise ValueError("Final manifest status must be terminal")
+    result = dict(manifest)
+    result["status"] = status
+    result["completed_at"] = utc_now_iso()
+    if artifact_refs is not None:
+        result["artifact_refs"] = list(artifact_refs)
+    if evidence_refs is not None:
+        result["evidence_refs"] = sorted(set(evidence_refs))
+    if decision_refs is not None:
+        result["decision_refs"] = sorted(set(decision_refs))
+    if notes is not None:
+        result["notes"] = list(notes)
+    return result
+
+
 def _safe_destination(root: str | Path, relative_path: str | Path) -> tuple[Path, Path]:
     root_path = Path(root).resolve()
     relative = Path(relative_path)
@@ -93,6 +120,35 @@ def write_immutable_json(
         os.link(temp_name, destination)
     except FileExistsError:
         raise
+    finally:
+        if temp_name and os.path.exists(temp_name):
+            os.unlink(temp_name)
+    return destination
+
+
+def write_markdown_report(
+    root: str | Path,
+    relative_path: str | Path,
+    report: str,
+) -> Path:
+    """Atomically create a Markdown report without overwriting an existing report."""
+    if not isinstance(report, str) or not report.strip():
+        raise ValueError("Report content must be a non-empty string")
+    _, destination = _safe_destination(root, relative_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temp_name: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=destination.parent,
+            prefix=f".{destination.name}.", suffix=".tmp", delete=False
+        ) as handle:
+            temp_name = handle.name
+            handle.write(report)
+            if not report.endswith("\\n"):
+                handle.write("\\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.link(temp_name, destination)
     finally:
         if temp_name and os.path.exists(temp_name):
             os.unlink(temp_name)
