@@ -36,7 +36,7 @@ def test_stale_stock_never_buys():
 def test_price_over_cap_rejects():
     gates = base_gates()
     gates["price_cap"] = FAIL
-    assert evaluate_decision(gates, "PASS", ["ev-001"]) == "REJECT"
+    assert evaluate_decision(gates, clean_review(), ["ev-001"]) == "REJECT"
 
 
 def test_listing_without_evidence_cannot_buy():
@@ -54,7 +54,7 @@ def test_empty_gates_fail_closed():
 def test_missing_mandatory_gate_fails_closed():
     gates = base_gates()
     del gates["size_110"]
-    assert evaluate_decision(gates, "PASS", ["ev-001"]) == "DATA_NOT_READY"
+    assert evaluate_decision(gates, clean_review(), ["ev-001"]) == "DATA_NOT_READY"
 
 
 def test_unrecognized_mandatory_gate_state_fails_closed():
