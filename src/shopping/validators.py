@@ -80,7 +80,9 @@ def evaluate_gender_match(
             return GateResult("UNKNOWN", "GENDER_EVIDENCE_MISSING", "Gender classification has no evidence reference.")
         return GateResult("PASS", "GENDER_COMPATIBLE", "Unisex product is compatible with the requested gender.", (evidence_ref,))
     if observed_gender != requested_gender:
-        return GateResult("FAIL", "GENDER_MISMATCH", "Product gender does not match the request.")
+        if not evidence_ref:
+            return GateResult("UNKNOWN", "GENDER_EVIDENCE_MISSING", "Gender mismatch lacks an evidence reference.")
+        return GateResult("FAIL", "GENDER_MISMATCH", "Product gender does not match the request.", (evidence_ref,))
     if not evidence_ref:
         return GateResult("UNKNOWN", "GENDER_EVIDENCE_MISSING", "Gender classification has no evidence reference.")
     return GateResult("PASS", "GENDER_MATCH", "Product gender matches the request.", (evidence_ref,))
@@ -95,7 +97,9 @@ def evaluate_condition(
     if not requested_condition or not observed_condition or observed_condition == "UNKNOWN":
         return GateResult("UNKNOWN", "CONDITION_MISSING", "Requested or observed product condition is missing or unknown.")
     if observed_condition != requested_condition:
-        return GateResult("FAIL", "CONDITION_MISMATCH", "Product condition does not match the request.")
+        if not evidence_ref:
+            return GateResult("UNKNOWN", "CONDITION_EVIDENCE_MISSING", "Condition mismatch lacks an evidence reference.")
+        return GateResult("FAIL", "CONDITION_MISMATCH", "Product condition does not match the request.", (evidence_ref,))
     if not evidence_ref:
         return GateResult("UNKNOWN", "CONDITION_EVIDENCE_MISSING", "Condition has no evidence reference.")
     return GateResult("PASS", "CONDITION_MATCH", "Product condition matches the request.", (evidence_ref,))
@@ -111,7 +115,9 @@ def evaluate_identity(
     if not expected_product_variant_id or not observed_product_variant_id:
         return GateResult("UNKNOWN", "IDENTITY_MISSING", "Expected or observed product identity is missing.")
     if expected_product_variant_id != observed_product_variant_id:
-        return GateResult("FAIL", "IDENTITY_MISMATCH", "Evidence belongs to a different product variant.")
+        if not evidence_ref:
+            return GateResult("UNKNOWN", "IDENTITY_EVIDENCE_MISSING", "Identity mismatch lacks an evidence reference.")
+        return GateResult("FAIL", "IDENTITY_MISMATCH", "Evidence belongs to a different product variant.", (evidence_ref,))
     if identity_status != "VERIFIED":
         return GateResult("UNKNOWN", "IDENTITY_UNVERIFIED", "Product identity has not passed verification.")
     if not evidence_ref:
@@ -135,7 +141,10 @@ def evaluate_size_match(
     if not requested_size or not advertised_size:
         return GateResult("UNKNOWN", "SIZE_MISSING", "Requested or advertised size is missing.")
     if size_system == "KR" and advertised_size.strip().upper() != requested_size.strip().upper():
-        return GateResult("FAIL", "SIZE_MISMATCH", "Advertised Korean size differs from the requested size.")
+        if not evidence_ref:
+            return GateResult("UNKNOWN", "SIZE_EVIDENCE_MISSING", "Advertised size mismatch lacks an evidence reference.")
+        return GateResult("FAIL", "SIZE_MISMATCH", "Advertised Korean size differs from the requested size.",
+                          (evidence_ref,))
     if size_system == "KR" and advertised_size.strip().upper() == requested_size.strip().upper():
         if not evidence_ref:
             return GateResult("UNKNOWN", "SIZE_EVIDENCE_MISSING", "Exact size option has no evidence reference.")
@@ -261,7 +270,9 @@ def evaluate_availability(
 ) -> GateResult:
     """Require exact requested options, option-level proof, evidence, and fresh stock."""
     if availability in {"SOLD_OUT", "OPTION_MISSING"}:
-        return GateResult("FAIL", "OPTION_UNAVAILABLE", "Requested option is sold out or missing.")
+        if not evidence_ref:
+            return GateResult("UNKNOWN", "STOCK_EVIDENCE_MISSING", "Unavailable option status lacks an evidence reference.")
+        return GateResult("FAIL", "OPTION_UNAVAILABLE", "Requested option is sold out or missing.", (evidence_ref,))
     if availability not in {"AVAILABLE", "LOW_STOCK"}:
         return GateResult("UNKNOWN", "AVAILABILITY_UNCONFIRMED", "Availability is not confirmed for immediate purchase.")
     if not expected_options or not selected_options or dict(selected_options) != dict(expected_options):
