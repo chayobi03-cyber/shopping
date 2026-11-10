@@ -7,14 +7,17 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Mapping, Sequence
 
+from shopping.validators import GateResult
+
 PASS = "PASS"
 FAIL = "FAIL"
 UNKNOWN = "UNKNOWN"
 STALE = "STALE"
 
-REQUIRED_HARD_GATES = frozenset({
-    "gender", "size_110", "new", "price_cap", "price_freshness", "identity", "stock", "evidence_coverage"
-})
+REQUIRED_HARD_GATES = (
+    "gender", "size_110", "new", "price_cap", "price_freshness",
+    "identity", "stock", "evidence_coverage"
+)
 
 
 @dataclass(frozen=True)
@@ -38,7 +41,7 @@ def evaluate_decision(
     evidence_refs: Sequence[str],
 ) -> str:
     """Return BUY/REJECT/DATA_NOT_READY using fail-closed semantics."""
-    if not REQUIRED_HARD_GATES.issubset(hard_gates.keys()):
+    if not set(REQUIRED_HARD_GATES).issubset(hard_gates.keys()):
         return "DATA_NOT_READY"
     if any(hard_gates[name] == FAIL for name in REQUIRED_HARD_GATES):
         return "REJECT"
@@ -47,8 +50,10 @@ def evaluate_decision(
     if not evidence_refs:
         return "DATA_NOT_READY"
     if (
-        getattr(reviewer_result, "status", None) != PASS
-        or getattr(reviewer_result, "code", None) != "REVIEW_INDEPENDENT_PASS"
+        not isinstance(reviewer_result, GateResult)
+        or reviewer_result.status != PASS
+        or reviewer_result.code != "REVIEW_INDEPENDENT_PASS"
+        or not reviewer_result.evidence_refs
     ):
         return "DATA_NOT_READY"
     return "BUY"
@@ -83,6 +88,8 @@ def evaluate_candidate(
     reviewer_status = getattr(reviewer_result, "status", UNKNOWN)
     reviewer_code = getattr(reviewer_result, "code", "")
     reviewer_status = PASS if reviewer_status == PASS and reviewer_code == "REVIEW_INDEPENDENT_PASS" else UNKNOWN
+    if isinstance(reviewer_result, GateResult):
+        refs.update(reviewer_result.evidence_refs)
     decision = evaluate_decision(gates, reviewer_result, sorted(refs))
     if reviewer_status != PASS:
         reasons.append("Independent review has not passed.")
