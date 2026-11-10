@@ -144,8 +144,8 @@ def write_markdown_report(
         ) as handle:
             temp_name = handle.name
             handle.write(report)
-            if not report.endswith("\\n"):
-                handle.write("\\n")
+            if not report.endswith("\n"):
+                handle.write("\n")
             handle.flush()
             os.fsync(handle.fileno())
         os.link(temp_name, destination)
