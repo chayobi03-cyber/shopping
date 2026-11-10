@@ -9,6 +9,7 @@ from shopping.validators import (
     evaluate_price_cap,
     evaluate_size_match,
     validate_evidence_coverage,
+    validate_independent_review,
 )
 
 NOW = "2026-11-10T09:00:00+09:00"
@@ -169,3 +170,25 @@ def test_gender_and_condition_require_matching_evidence():
     assert evaluate_condition("NEW", "NEW", evidence_ref=EV).status == "PASS"
     assert evaluate_condition("NEW", "USED", evidence_ref=EV).status == "FAIL"
     assert evaluate_condition("NEW", "NEW").status == "UNKNOWN"
+
+
+def test_independent_review_must_use_distinct_run():
+    result = validate_independent_review("run-primary", "run-primary", "PASS", ["PASS"], [])
+    assert result.status == "FAIL"
+
+
+def test_review_cannot_pass_with_high_severity_finding():
+    result = validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], ["HIGH"])
+    assert result.status == "FAIL"
+
+
+def test_incomplete_review_does_not_pass():
+    result = validate_independent_review("run-primary", "run-review", "PASS", ["UNKNOWN"], [])
+    assert result.status == "UNKNOWN"
+
+
+def test_independent_review_passes_when_clean():
+    result = validate_independent_review(
+        "run-primary", "run-review", "PASS_WITH_WARNINGS", ["PASS", "NOT_APPLICABLE"], ["LOW"]
+    )
+    assert result.status == "PASS"
