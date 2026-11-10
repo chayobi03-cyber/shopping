@@ -21,6 +21,12 @@
           "evidence_refs": {"type": "array", "items": {"type": "string"}},
           "notes": {"type": "string"}
         },
+        "allOf": [
+          {
+            "if": {"properties": {"status": {"const": "PASS"}}},
+            "then": {"properties": {"evidence_refs": {"minItems": 1}}}
+          }
+        ],
         "additionalProperties": false
       }
     },
