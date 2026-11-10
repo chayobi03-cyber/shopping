@@ -8,25 +8,29 @@ UNKNOWN = "UNKNOWN"
 STALE = "STALE"
 
 
+def clean_review():
+    return validate_independent_review("run-primary", "run-review", "PASS", ["PASS"], [])
+
+
 def base_gates():
     return {"gender": PASS, "size_110": PASS, "new": PASS,
             "price_cap": PASS, "price_freshness": PASS, "identity": PASS, "stock": PASS, "evidence_coverage": PASS}
 
 
 def test_all_gates_and_review_pass():
-    assert evaluate_decision(base_gates(), "PASS", ["ev-001"]) == "BUY"
+    assert evaluate_decision(base_gates(), clean_review(), ["ev-001"]) == "BUY"
 
 
 def test_unknown_size_never_buys():
     gates = base_gates()
     gates["size_110"] = UNKNOWN
-    assert evaluate_decision(gates, "PASS", ["ev-001"]) == "DATA_NOT_READY"
+    assert evaluate_decision(gates, clean_review(), ["ev-001"]) == "DATA_NOT_READY"
 
 
 def test_stale_stock_never_buys():
     gates = base_gates()
     gates["stock"] = STALE
-    assert evaluate_decision(gates, "PASS", ["ev-001"]) == "DATA_NOT_READY"
+    assert evaluate_decision(gates, clean_review(), ["ev-001"]) == "DATA_NOT_READY"
 
 
 def test_price_over_cap_rejects():
@@ -36,15 +40,15 @@ def test_price_over_cap_rejects():
 
 
 def test_listing_without_evidence_cannot_buy():
-    assert evaluate_decision(base_gates(), "PASS", []) == "DATA_NOT_READY"
+    assert evaluate_decision(base_gates(), clean_review(), []) == "DATA_NOT_READY"
 
 
 def test_independent_review_failure_blocks_buy():
-    assert evaluate_decision(base_gates(), "FAIL", ["ev-001"]) == "DATA_NOT_READY"
+    assert evaluate_decision(base_gates(), GateResult("UNKNOWN", "REVIEW_PENDING", "review pending"), ["ev-001"]) == "DATA_NOT_READY"
 
 
 def test_empty_gates_fail_closed():
-    assert evaluate_decision({}, "PASS", ["ev-001"]) == "DATA_NOT_READY"
+    assert evaluate_decision({}, clean_review(), ["ev-001"]) == "DATA_NOT_READY"
 
 
 def test_missing_mandatory_gate_fails_closed():
@@ -95,3 +99,7 @@ def test_unvalidated_positive_review_cannot_authorize_buy():
     }
     decision = evaluate_candidate(results, GateResult(PASS, "ARBITRARY_PASS", "not independently validated"))
     assert decision.decision == "DATA_NOT_READY"
+
+
+def test_low_level_decision_gate_rejects_unvalidated_review_string():
+    assert evaluate_decision(base_gates(), "PASS", ["ev-001"]) == "DATA_NOT_READY"
