@@ -192,3 +192,14 @@ def test_independent_review_passes_when_clean():
         "run-primary", "run-review", "PASS_WITH_WARNINGS", ["PASS", "NOT_APPLICABLE"], ["LOW"]
     )
     assert result.status == "PASS"
+
+
+def test_unknown_gender_and_condition_remain_unknown():
+    assert evaluate_gender_match("men", "unknown", evidence_ref=EV).status == "UNKNOWN"
+    assert evaluate_condition("NEW", "UNKNOWN", evidence_ref=EV).status == "UNKNOWN"
+
+
+def test_freshness_rejects_boolean_ttl():
+    import pytest
+    with pytest.raises(TypeError):
+        evaluate_freshness(NOW, True, now=NOW)
